@@ -3,9 +3,10 @@
 #include "es/state_tracking.h"
 #include "gles20/buffer_tracking.h"
 #include "gles20/framebuffer_tracking.h"
+#include "gles20/shader_overrides.h"
 #include "gles20/texture_tracking.h"
 
-#include <GLES3/gl32.h>
+#include <GLES2/gl2.h>
 
 // TODO:
 // What if we keep track of bounded textures, buffer, etc ourselves
@@ -13,19 +14,46 @@
 
 // PROGRESS: PARTIAL
 
-struct SaveActiveTextureUnit {
+class Restorable {
+protected:
+    bool restored;
+
+    virtual void _internal_restore() {
+        throw std::runtime_error("Restorable::_internal_restore() not implemented!");
+    }
+
+public:
+    virtual ~Restorable() {
+        if (restored) {
+            LOGI("Restorable destructor called!");
+            _internal_restore();
+        }
+    }
+
+    void restore() {
+        if (restored) return;
+        _internal_restore();
+        restored = true;
+    }
+
+    bool isRestored() {
+        return restored;
+    }
+};
+
+class SaveActiveTextureUnit : public Restorable {
     GLuint activeTextureUnit;
 
     SaveActiveTextureUnit() {
         activeTextureUnit = trackedStates->activeTextureUnit;
     }
 
-    ~SaveActiveTextureUnit() {
+    void _internal_restore() override {
         OV_glActiveTexture(activeTextureUnit);
     }
 };
 
-struct SaveBoundedTexture {
+struct SaveBoundedTexture : public Restorable  {
     GLuint boundedTexture;
     GLenum textureType;
 
@@ -33,33 +61,28 @@ struct SaveBoundedTexture {
         boundedTexture = trackedStates->activeTextureState->boundTextures[textureType];
     }
 
-    ~SaveBoundedTexture() {
+protected:
+    void _internal_restore() override {
         OV_glBindTexture(textureType, boundedTexture);
     }
 };
 
-struct SaveBoundedBuffer {
+struct SaveBoundedBuffer : public Restorable  {
     GLuint boundedBuffer;
     GLenum bufferType;
 
-    bool restored;
-    
     SaveBoundedBuffer(GLenum bufferType) : bufferType(bufferType) {
         boundedBuffer = trackedStates->boundBuffers[bufferType].buffer;
     }
 
-    ~SaveBoundedBuffer() {
-        if (!restored) restore();
-    }
-        
-    void restore() {
-        if (restored) return;
+
+protected:
+    void _internal_restore() override {
         OV_glBindBuffer(bufferType, boundedBuffer);
-        restored = true;
     }
 };
 
-struct SaveBoundedFramebuffer {
+struct SaveBoundedFramebuffer : public Restorable  {
     GLenum framebufferType;
     GLuint boundedFramebuffer;
 
@@ -76,27 +99,21 @@ struct SaveBoundedFramebuffer {
         }
     }
 
-    ~SaveBoundedFramebuffer() {
+protected:
+    void _internal_restore() override {
         OV_glBindFramebuffer(framebufferType, boundedFramebuffer);
     }
 };
 
-struct SaveUsedProgram {
-    GLuint program;
-
-    bool restored;
+struct SaveUsedProgram : public Restorable {
+    GLuint activeProgram;
 
     SaveUsedProgram() {
-        program = trackedStates->lastUsedProgram;
+        activeProgram = trackedStates->lastUsedProgram;
     }
 
-    ~SaveUsedProgram() {
-        if (!restored) restore();
-    }
-
-    void restore() {
-        if (restored) return;
-        glUseProgram(program);
-        restored = true;
+protected:
+    void _internal_restore() override {
+        OV_glUseProgram(activeProgram);
     }
 };

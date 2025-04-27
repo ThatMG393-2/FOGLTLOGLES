@@ -10,7 +10,7 @@ void glMultiDrawElementsBaseVertex(GLenum mode, const GLsizei* count, GLenum typ
 void GLES32::registerBaseVertexFunction() {
     REGISTER(glMultiDrawElementsBaseVertex);
 
-    batcher = MakeAggregateShared<MDElementsBaseVertexBatcher>();
+    batcher->init();
 }
 
 void glMultiDrawElementsBaseVertex(

@@ -44,7 +44,7 @@ void main() {
     if (outputIndex >= drawCommands[drawCommands.length() - 1].prefix) return;
     // if (outputIndex >= prefixSums[prefixSums.length() - 1]) return;
 
-    int low = 0, high = prefixSums.length() - 1;
+    int low = 0, high = drawCommands.length() - 1;
     while (low < high) {
         int mid = (low + high) >> 1;
         if (drawCommands[mid].prefix > outputIndex) {
@@ -87,7 +87,7 @@ struct MDElementsBaseVertexBatcher {
     GLuint prefixSSBO;
     std::vector<GLuint> prefix;    
 
-    MDElementsBaseVertexBatcher() {
+    void init() {
         computeProgram = glCreateProgram();
         GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
         
@@ -201,10 +201,17 @@ struct MDElementsBaseVertexBatcher {
 
         LOGI("dispatching compute");
         
-        SaveUsedProgram sup;
+        // SaveUsedProgram sup = SaveUsedProgram();
+        GLuint lastProgram = trackedStates->lastUsedProgram;
+
         OV_glUseProgram(computeProgram);
         glDispatchCompute((total + 127) / 128, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        LOGI("restoring used program");
+
+        // sup.restore();
+        OV_glUseProgram(lastProgram);
 
         LOGI("save previous EAB & bind EAB");
 
@@ -213,11 +220,10 @@ struct MDElementsBaseVertexBatcher {
 
         LOGI("its draw time innit");
 
-        sup.restore();
         glDrawElements(mode, total, type, 0);
 
         LOGI("done");
     }
 };
 
-inline std::shared_ptr<MDElementsBaseVertexBatcher> batcher;
+inline std::shared_ptr<MDElementsBaseVertexBatcher> batcher = std::make_shared<MDElementsBaseVertexBatcher>();
