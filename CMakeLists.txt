@@ -47,7 +47,6 @@ set(RELEASE_FLAGS
     -fomit-frame-pointer
     -ffunction-sections
     -fdata-sections
-    # -fno-rtti
     -fvisibility=hidden
     -fvisibility-inlines-hidden
     -DNDEBUG
@@ -95,17 +94,13 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     string(REPLACE ";" " " COMMON_FLAGS_STR "${COMMON_FLAGS}")
     
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${COMMON_FLAGS_STR} ${RELEASE_FLAGS_STR}")
-    
-    # Enable link-time optimization
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    
-    # Add linker optimizations
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,--as-needed")
     
-    ##add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    ##    COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${PROJECT_NAME}>
-    ##    COMMENT "Stripping symbols from ${PROJECT_NAME}"
-    ##)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${PROJECT_NAME}>
+        COMMENT "Stripping symbols from ${PROJECT_NAME}"
+    )
 else()
     string(REPLACE ";" " " DEBUG_FLAGS_STR "${DEBUG_FLAGS}")
     string(REPLACE ";" " " COMMON_FLAGS_STR "${COMMON_FLAGS}")

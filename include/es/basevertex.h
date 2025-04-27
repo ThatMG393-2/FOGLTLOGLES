@@ -14,7 +14,7 @@
 // https://github.com/MobileGL-Dev/MobileGlues/blob/8727ed43fde193ae595d73e84a8991ee771e43e7/src/main/cpp/gl/multidraw.cpp#L418
 
 inline const std::string COMPUTE_BATCHER_GLSL_BASE = R"(#version 320 es
-layout(local_size_x = 128) in;
+layout(local_size_x = 64) in;
 
 struct DrawCommand {
     uint  firstIndex;
@@ -85,7 +85,14 @@ struct MDElementsBaseVertexBatcher {
     GLuint outputIndexSSBO;
 
     GLuint prefixSSBO;
-    std::vector<GLuint> prefix;    
+    std::vector<GLuint> prefix;
+
+    ~MDElementsBaseVertexBatcher() {
+        glDeleteProgram(computeProgram);
+        glDeleteBuffers(1, &paramsSSBO);
+        glDeleteBuffers(1, &prefixSSBO);
+        glDeleteBuffers(1, &outputIndexSSBO);
+    }
 
     void init() {
         computeProgram = glCreateProgram();
@@ -124,28 +131,24 @@ struct MDElementsBaseVertexBatcher {
         
         SaveBoundedBuffer sbb(GL_DRAW_INDIRECT_BUFFER);
         OV_glBindBuffer(GL_DRAW_INDIRECT_BUFFER, paramsSSBO);
-        const GLintptr previousSSBOSize = trackedStates->boundBuffers[GL_DRAW_INDIRECT_BUFFER].size;
-        const long drawCommandsSize = static_cast<long>(drawcount * sizeof(DrawCommand));
-        if (previousSSBOSize < drawCommandsSize) {
-            LOGI("Resizing DrawCommands SSBO from %ld to %ld", previousSSBOSize, drawCommandsSize);
+
+        int previousSSBOSize = trackedStates->boundBuffers[GL_DRAW_INDIRECT_BUFFER].size / sizeof(DrawCommand);
+        if (previousSSBOSize < drawcount) {
+            LOGI("Resizing DrawCommands SSBO from %i to %i", previousSSBOSize, drawcount);
             OV_glBufferData(
                 GL_DRAW_INDIRECT_BUFFER,
-                drawCommandsSize,
+                drawcount * sizeof(DrawCommand),
                 nullptr, GL_DYNAMIC_DRAW
             );
         }
 
-        LOGI("mapping sum");
-
         DrawCommand* drawCommands = reinterpret_cast<DrawCommand*>(
             glMapBufferRange(
                 GL_DRAW_INDIRECT_BUFFER, 0,
-                drawCommandsSize,
+                drawcount * sizeof(DrawCommand),
                 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT
             )
         );
-
-        LOGI("constructing drawcommands");
 
         for (GLsizei i = 0; i < drawcount; ++i) {
             uintptr_t byteOffset = reinterpret_cast<uintptr_t>(indices[i]);
@@ -156,6 +159,7 @@ struct MDElementsBaseVertexBatcher {
         GLuint total = drawCommands[drawcount - 1].prefix;
 
         glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+        sbb.restore();
 
         // LOGI("sum prefixes!");
 
@@ -180,49 +184,35 @@ struct MDElementsBaseVertexBatcher {
             nullptr, GL_DYNAMIC_DRAW
         );
 
-        OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        SaveBoundedBuffer sbb2(GL_ELEMENT_ARRAY_BUFFER);
         
         glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 0,
-            trackedStates->boundBuffers[GL_ELEMENT_ARRAY_BUFFER].buffer
+            GL_SHADER_STORAGE_BUFFER, 0, sbb2.boundedBuffer
         );
         glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 1,
-            paramsSSBO
+            GL_SHADER_STORAGE_BUFFER, 1, paramsSSBO
         );
         /* glBindBufferBase(
             GL_SHADER_STORAGE_BUFFER, 2,
             prefixSSBO
         ); */
         glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 2,
-            outputIndexSSBO
+            GL_SHADER_STORAGE_BUFFER, 3, outputIndexSSBO
         );
 
-        LOGI("dispatching compute");
-        
-        // SaveUsedProgram sup = SaveUsedProgram();
-        GLuint lastProgram = trackedStates->lastUsedProgram;
-
+        SaveBoundedBuffer sbb3(GL_ARRAY_BUFFER);
+        SaveUsedProgram sup;
         OV_glUseProgram(computeProgram);
-        glDispatchCompute((total + 127) / 128, 1, 1);
+        glDispatchCompute((total + 63) / 64, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        LOGI("restoring used program");
-
-        // sup.restore();
-        OV_glUseProgram(lastProgram);
-
-        LOGI("save previous EAB & bind EAB");
-
-        SaveBoundedBuffer sbb2(GL_ELEMENT_ARRAY_BUFFER);
+        
+        sup.restore();
+        sbb3.restore();
         OV_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, outputIndexSSBO);
-
-        LOGI("its draw time innit");
 
         glDrawElements(mode, total, type, 0);
 
-        LOGI("done");
+        LOGI("done dispatch and drawed!");
     }
 };
 
