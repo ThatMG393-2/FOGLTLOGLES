@@ -19,7 +19,7 @@ layout(local_size_x = 128) in;
 struct DrawCommand {
     uint  firstIndex;
     int   baseVertex;
-//  uint  prefix;
+    uint  prefix;
 };
 
 layout(std430, binding = 0) readonly buffer Input {
@@ -30,9 +30,9 @@ layout(std430, binding = 1) readonly buffer DrawCommands {
     DrawCommand drawCommands[];
 };
 
-layout(std430, binding = 2) readonly buffer PrefixSummations {
+/* layout(std430, binding = 2) readonly buffer PrefixSummations {
     uint prefixSums[];
-};
+}; */
 
 layout(std430, binding = 3) writeonly buffer Output {
     uint outputIndices[];
@@ -41,14 +41,14 @@ layout(std430, binding = 3) writeonly buffer Output {
 void main() {
     uint outputIndex = gl_GlobalInvocationID.x;
 
-    // if (outputIndex >= drawCommands[drawCommands.length() - 1].prefix) return;
-    if (outputIndex >= prefixSums[prefixSums.length() - 1]) return;
+    if (outputIndex >= drawCommands[drawCommands.length() - 1].prefix) return;
+    // if (outputIndex >= prefixSums[prefixSums.length() - 1]) return;
 
     int low = 0, high = prefixSums.length() - 1;
     while (low < high) {
         int mid = (low + high) >> 1;
-        // if (drawCommands[mid].prefix > outputIndex) {
-        if (prefixSums[mid] > outputIndex) {
+        if (drawCommands[mid].prefix > outputIndex) {
+        // if (prefixSums[mid] > outputIndex) {
             high = mid;
         } else {
             low = mid + 1;
@@ -56,8 +56,8 @@ void main() {
     }
 
     DrawCommand cmd = drawCommands[low];
-    // uint localIndex = outputIndex - ((low == 0) ? 0u : (drawCommmands[low - 1].prefix));
-    uint localIndex = outputIndex - ((low == 0) ? 0u : (prefixSums[low - 1]));
+    uint localIndex = outputIndex - ((low == 0) ? 0u : (drawCommmands[low - 1].prefix));
+    // uint localIndex = outputIndex - ((low == 0) ? 0u : (prefixSums[low - 1]));
     uint inputIndex = localIndex + cmd.firstIndex;
 
     outputIndices[outputIndex] = uint(int(inputElementBuffer[inputIndex]) + cmd.baseVertex);
@@ -66,7 +66,7 @@ void main() {
 struct DrawCommand {
     GLuint firstIndex;
     GLint baseVertex;
-    // GLuint prefix;
+    GLuint prefix;
 };
 
 inline GLuint getTypeByteSize(GLenum type) {
@@ -101,7 +101,7 @@ struct MDElementsBaseVertexBatcher {
         glDeleteShader(computeShader);
 
         glGenBuffers(1, &paramsSSBO);
-        glGenBuffers(1, &prefixSSBO);
+        // glGenBuffers(1, &prefixSSBO);
         glGenBuffers(1, &outputIndexSSBO);
     }
 
@@ -151,29 +151,27 @@ struct MDElementsBaseVertexBatcher {
             uintptr_t byteOffset = reinterpret_cast<uintptr_t>(indices[i]);
             drawCommands[i].firstIndex = static_cast<GLuint>(byteOffset / elemSize);
             drawCommands[i].baseVertex = basevertex ? basevertex[i] : 0;
-
-            // one for loop for all
-            // drawCommands[i].prefix = count[i] + ((i == 0) ? 0 : drawCommands[i - 1].prefix);
+            drawCommands[i].prefix = count[i] + ((i == 0) ? 0 : drawCommands[i - 1].prefix);
         }
-        // GLuint total = drawCommands[drawcount - 1].prefix;
+        GLuint total = drawCommands[drawcount - 1].prefix;
 
         glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
 
-        LOGI("sum prefixes!");
+        // LOGI("sum prefixes!");
 
-        if (static_cast<GLsizei>(prefix.capacity()) < drawcount) prefix.resize(drawcount);
+        /* if (static_cast<GLsizei>(prefix.capacity()) < drawcount) prefix.resize(drawcount);
         prefix[0] = count[0];
         for (int i = 1; i < drawcount; ++i) prefix[i] = prefix[i - 1] + count[i];
-        GLuint total = prefix[prefix.size() - 1];
+        GLuint total = prefix[prefix.size() - 1]; */
 
         LOGI("setup compute inputs/outputs");
         
-        OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, prefixSSBO);
+        /* OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, prefixSSBO);
         OV_glBufferData(
             GL_SHADER_STORAGE_BUFFER,
             prefix.size() * sizeof(GLuint),
             prefix.data(), GL_DYNAMIC_DRAW
-        );
+        ); */
 
         OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, outputIndexSSBO);
         OV_glBufferData(
