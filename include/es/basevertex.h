@@ -34,7 +34,7 @@ layout(std430, binding = 1) readonly buffer DrawCommands {
     uint prefixSums[];
 }; */
 
-layout(std430, binding = 3) writeonly buffer Output {
+layout(std430, binding = 2) writeonly buffer Output {
     uint outputIndices[];
 };
 
@@ -190,12 +190,12 @@ struct MDElementsBaseVertexBatcher {
             GL_SHADER_STORAGE_BUFFER, 1,
             paramsSSBO
         );
-        glBindBufferBase(
+        /* glBindBufferBase(
             GL_SHADER_STORAGE_BUFFER, 2,
             prefixSSBO
-        );
+        ); */
         glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 3,
+            GL_SHADER_STORAGE_BUFFER, 2,
             outputIndexSSBO
         );
 
