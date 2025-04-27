@@ -14,12 +14,13 @@
 // https://github.com/MobileGL-Dev/MobileGlues/blob/8727ed43fde193ae595d73e84a8991ee771e43e7/src/main/cpp/gl/multidraw.cpp#L418
 
 inline const std::string COMPUTE_BATCHER_GLSL_BASE = R"(#version 320 es
-layout(local_size_x = 64) in;
+layout(local_size_x = 32) in;
 
 struct DrawCommand {
     uint  firstIndex;
     int   baseVertex;
     uint  prefix;
+    uint  padding;
 };
 
 layout(std430, binding = 0) readonly buffer Input {
@@ -30,25 +31,18 @@ layout(std430, binding = 1) readonly buffer DrawCommands {
     DrawCommand drawCommands[];
 };
 
-/* layout(std430, binding = 2) readonly buffer PrefixSummations {
-    uint prefixSums[];
-}; */
-
 layout(std430, binding = 2) writeonly buffer Output {
     uint outputIndices[];
 };
 
 void main() {
     uint outputIndex = gl_GlobalInvocationID.x;
-
     if (outputIndex >= drawCommands[drawCommands.length() - 1].prefix) return;
-    // if (outputIndex >= prefixSums[prefixSums.length() - 1]) return;
 
     int low = 0, high = drawCommands.length() - 1;
     while (low < high) {
         int mid = (low + high) >> 1;
         if (drawCommands[mid].prefix > outputIndex) {
-        // if (prefixSums[mid] > outputIndex) {
             high = mid;
         } else {
             low = mid + 1;
@@ -57,7 +51,6 @@ void main() {
 
     DrawCommand cmd = drawCommands[low];
     uint localIndex = outputIndex - ((low == 0) ? 0u : (drawCommmands[low - 1].prefix));
-    // uint localIndex = outputIndex - ((low == 0) ? 0u : (prefixSums[low - 1]));
     uint inputIndex = localIndex + cmd.firstIndex;
 
     outputIndices[outputIndex] = uint(int(inputElementBuffer[inputIndex]) + cmd.baseVertex);
@@ -65,8 +58,9 @@ void main() {
 
 struct DrawCommand {
     GLuint firstIndex;
-    GLint baseVertex;
+    GLint  baseVertex;
     GLuint prefix;
+    GLuint padding;
 };
 
 inline GLuint getTypeByteSize(GLenum type) {
@@ -84,13 +78,9 @@ struct MDElementsBaseVertexBatcher {
     GLuint paramsSSBO;
     GLuint outputIndexSSBO;
 
-    GLuint prefixSSBO;
-    std::vector<GLuint> prefix;
-
     ~MDElementsBaseVertexBatcher() {
         glDeleteProgram(computeProgram);
         glDeleteBuffers(1, &paramsSSBO);
-        glDeleteBuffers(1, &prefixSSBO);
         glDeleteBuffers(1, &outputIndexSSBO);
     }
 
@@ -108,7 +98,6 @@ struct MDElementsBaseVertexBatcher {
         glDeleteShader(computeShader);
 
         glGenBuffers(1, &paramsSSBO);
-        // glGenBuffers(1, &prefixSSBO);
         glGenBuffers(1, &outputIndexSSBO);
     }
 
@@ -159,23 +148,6 @@ struct MDElementsBaseVertexBatcher {
         GLuint total = drawCommands[drawcount - 1].prefix;
 
         glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
-        sbb.restore();
-
-        // LOGI("sum prefixes!");
-
-        /* if (static_cast<GLsizei>(prefix.capacity()) < drawcount) prefix.resize(drawcount);
-        prefix[0] = count[0];
-        for (int i = 1; i < drawcount; ++i) prefix[i] = prefix[i - 1] + count[i];
-        GLuint total = prefix[prefix.size() - 1]; */
-
-        LOGI("setup compute inputs/outputs");
-        
-        /* OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, prefixSSBO);
-        OV_glBufferData(
-            GL_SHADER_STORAGE_BUFFER,
-            prefix.size() * sizeof(GLuint),
-            prefix.data(), GL_DYNAMIC_DRAW
-        ); */
 
         OV_glBindBuffer(GL_SHADER_STORAGE_BUFFER, outputIndexSSBO);
         OV_glBufferData(
@@ -192,18 +164,14 @@ struct MDElementsBaseVertexBatcher {
         glBindBufferBase(
             GL_SHADER_STORAGE_BUFFER, 1, paramsSSBO
         );
-        /* glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 2,
-            prefixSSBO
-        ); */
         glBindBufferBase(
-            GL_SHADER_STORAGE_BUFFER, 3, outputIndexSSBO
+            GL_SHADER_STORAGE_BUFFER, 2, outputIndexSSBO
         );
 
         SaveBoundedBuffer sbb3(GL_ARRAY_BUFFER);
         SaveUsedProgram sup;
         OV_glUseProgram(computeProgram);
-        glDispatchCompute((total + 63) / 64, 1, 1);
+        glDispatchCompute((total + 31) / 32, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         
         sup.restore();
