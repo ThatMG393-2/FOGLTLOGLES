@@ -5,7 +5,7 @@
 
 #include <memory>
 
-inline bool debugEnabled = getEnvironmentVar("LIBGL_VGPU_DUMP", "0") == "1";
+inline bool debugEnabled = SHADER_DUMP;
 
 namespace GLES {
     class GLESWrapper : BaseWrapper {

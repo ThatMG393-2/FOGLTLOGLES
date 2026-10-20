@@ -7,8 +7,6 @@
 
 #include <stdexcept>
 
-inline const bool SHADER_DUMP = getEnvironmentVar("LIBGL_VGPU_DUMP") == "1";
-
 inline shaderc::Compiler& getShaderCompiler() {
     static thread_local shaderc::Compiler compiler;
     return compiler;

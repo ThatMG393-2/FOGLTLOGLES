@@ -4,8 +4,6 @@
 
 #include <GLES3/gl32.h>
 
-inline bool envNoError = (getEnvironmentVar("LIBGL_NO_ERROR") == "1");
-
 GLenum OV_glGetError();
 
 void GLES::registerNoErrorOverride() {
@@ -13,6 +11,6 @@ void GLES::registerNoErrorOverride() {
 }
 
 GLenum OV_glGetError() {
-    if (envNoError) return GL_NO_ERROR;
+    if (ENV_NO_ERROR) return GL_NO_ERROR;
     return glGetError();
 }

@@ -32,7 +32,7 @@ void customDebugCallback(
 );
 
 void initDebug() {
-    if (getEnvironmentVar("LIBGL_VGPU_DUMP", "0") == "1") {
+    if (SHADER_DUMP) {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(customDebugCallback, nullptr);

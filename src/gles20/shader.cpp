@@ -57,7 +57,7 @@ namespace {
         static const bool usable = [] {
             GLint formats = 0;
             glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &formats);
-            return Cache::ENABLE_BINARY_CACHE && formats > 0;
+            return ENABLE_BINARY_CACHE && formats > 0;
         }();
         return usable;
     }

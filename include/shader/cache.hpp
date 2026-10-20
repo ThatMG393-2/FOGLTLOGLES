@@ -23,9 +23,6 @@ namespace ShaderConverter::Cache {
     // Bump whenever converter output changes for the same input.
     inline constexpr uint32_t CONVERTER_REVISION = 2;
 
-    inline bool ENABLE_SHADER_CACHE = getEnvironmentVar("FOGLE_ENABLE_SHADER_CACHE", "1") == "1";
-    inline bool ENABLE_BINARY_CACHE = getEnvironmentVar("FOGLE_ENABLE_BINARY_CACHE", "1") == "1";
-
     inline uint64_t hashBytes(const void* data, size_t size, uint64_t seed = 0) {
         constexpr uint64_t k1 = 0x9E3779B97F4A7C15ull;
         constexpr uint64_t k2 = 0xC2B2AE3D27D4EB4Full;
@@ -316,18 +313,16 @@ namespace ShaderConverter::Cache {
     }
 
     inline void init() {
-        const std::string root = getEnvironmentVar("MESA_GLSL_CACHE_DIR");
-        if (!ENABLE_SHADER_CACHE || root.empty()) {
+        if (!ENABLE_SHADER_CACHE || SHADER_CACHE_DIR.empty()) {
             LOGI("Shader cache is disabled!");
             ENABLE_SHADER_CACHE = false;
             ENABLE_BINARY_CACHE = false;
             return;
         }
 
-        const uint64_t days = std::strtoull(getEnvironmentVar("FOGLE_CACHE_RETENTION_DAY", "30").c_str(), nullptr, 10);
-        const time_t retention = static_cast<time_t>(days) * 24 * 60 * 60;
+        const time_t retention = static_cast<time_t>(SHADER_RETENTION_DAYS) * 24 * 60 * 60;
 
-        convertedStore.init(root, retention);
-        if (ENABLE_BINARY_CACHE) binaryStore.init(root, retention);
+        convertedStore.init(SHADER_CACHE_DIR, retention);
+        if (ENABLE_BINARY_CACHE) binaryStore.init(SHADER_CACHE_DIR, retention);
     }
 }
