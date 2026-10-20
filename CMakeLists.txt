@@ -90,23 +90,11 @@ set(DEBUG_FLAGS
     -D_GLIBCXX_DEBUG
 )
 
-file(GLOB_RECURSE SOURCES
-	"src/*.cpp"
-	"src/*/*.cpp"
-	"src/*/*/*.cpp"
-)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-set(HEADER_DIRS "include" "build_info")
-file(GLOB_RECURSE HEADERS
-	"include/*.hpp"
-	"include/*/*.hpp"
-	"include/*/*/*.hpp"
-    "include/*/*/*/*.hpp"
-    "include/*/*/*/*/*.hpp"
-	"build_info/build_info.hpp"
-)
+set(HEADER_DIRS "src" "build_info")
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 set_target_properties(
 	${PROJECT_NAME}
 	PROPERTIES
@@ -185,7 +173,6 @@ target_link_libraries(
 )
 
 message("Sources      : ${SOURCES}")
-message("Headers      : ${HEADERS}")
 message("Dependencies : ${DEPENDENCIES}")
 
 set(BUILD_INFO_DIR ${CMAKE_SOURCE_DIR}/build_info)

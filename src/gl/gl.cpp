@@ -1,8 +1,8 @@
 #include "gl/gl.hpp"
 #include "egl/egl.hpp"
-#include "main.hpp"
-#include "utils/env.hpp"
-#include "utils/log.hpp"
+#include "fogltlogles.hpp"
+#include "common/env.hpp"
+#include "common/log.hpp"
 
 #include <mutex>
 #include <GLES3/gl32.h>

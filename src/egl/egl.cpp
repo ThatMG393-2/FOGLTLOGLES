@@ -1,7 +1,7 @@
 #include "egl/egl.hpp"
-#include "main.hpp"
-#include "utils/log.hpp"
-#include "utils/types.hpp"
+#include "fogltlogles.hpp"
+#include "common/log.hpp"
+#include "common/types.hpp"
 
 #include <EGL/egl.h>
 #include <dlfcn.h>
