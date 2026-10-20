@@ -14,10 +14,10 @@ void glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 void glColorMaterial(GLenum face, GLenum mode);
 
 void FFP::registerColorFunctions() {
-    REGISTER(glColor3f);
-    REGISTER(glColor4f);
+    PROVIDE(glColor3f);
+    PROVIDE(glColor4f);
     
-    REGISTER(glColorMaterial);
+    PROVIDE(glColorMaterial);
 }
 
 void glColor3f(GLfloat red, GLfloat green, GLfloat blue) {

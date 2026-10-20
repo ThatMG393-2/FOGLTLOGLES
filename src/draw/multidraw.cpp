@@ -9,8 +9,8 @@ void glMultiDrawElements2(GLenum mode, const GLsizei* count, GLenum type, const 
 
 void Draw::registerMultiDrawEmulation() {
     LOGI("Using generic glMultiDrawArrays and glMultiDrawElements implementation.");
-    REGISTERREDIR(glMultiDrawArrays, glMultiDrawArrays2);
-    REGISTERREDIR(glMultiDrawElements, glMultiDrawElements2);
+    PROVIDE(glMultiDrawArrays, glMultiDrawArrays2);
+    PROVIDE(glMultiDrawElements, glMultiDrawElements2);
 }
 
 void glMultiDrawArrays2(

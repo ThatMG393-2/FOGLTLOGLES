@@ -17,16 +17,23 @@
 #include <GLES3/gl32.h>
 #include <unordered_map>
 
-inline std::unordered_map<std::string, FunctionPtr> registeredFunctions;
+inline std::unordered_map<std::string, FOGLTLOGLES::Entry> registeredFunctions;
 
-void FOGLTLOGLES::registerFunction(std::string name, FunctionPtr function) {
-    if (registeredFunctions.find(name) != registeredFunctions.end()) {
+FOGLTLOGLES::Entry& FOGLTLOGLES::entryFor(const std::string& name) {
+    return registeredFunctions[name];
+}
+
+void FOGLTLOGLES::provide(const std::string& name, FunctionPtr function) {
+    Entry& e = entryFor(name);
+
+    if (e.base) {
         LOGI("Overriding %s", name.c_str());
     } else {
         LOGI("Registering %s", name.c_str());
     }
-    
-    registeredFunctions.insert({ name, function });
+
+    e.base = function;
+    if (!e.hooked) e.exposed = function;
 }
 
 FunctionPtr FOGLTLOGLES::getFunctionAddress(std::string name) {
@@ -34,7 +41,7 @@ FunctionPtr FOGLTLOGLES::getFunctionAddress(std::string name) {
     if (auto it = registeredFunctions.find(name);
         it != registeredFunctions.end()) {
         // LOGI("Found function named %s", name.c_str());
-        return it->second;
+        return it->second.exposed;
     }
 
     // LOGW("Function named %s not found", name.c_str());

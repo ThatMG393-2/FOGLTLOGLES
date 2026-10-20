@@ -10,8 +10,8 @@ void glMultiDrawElements3(GLenum mode, const GLsizei* count, GLenum type, const 
 void Draw::registerBatchedMultiDraw() {
     LOGI("Nevermind, enjoy a somewhat accelerated glMultiDrawArrays and glMultiDrawElements implementation!");
 
-    // REGISTERREDIR(glMultiDrawArrays, glMultiDrawArrays3);
-    // REGISTERREDIR(glMultiDrawElements, glMultiDrawElements3);
+    // PROVIDE(glMultiDrawArrays, glMultiDrawArrays3);
+    // PROVIDE(glMultiDrawElements, glMultiDrawElements3);
 
     // batcher = MakeAggregateShared<MDElementsBatcher>();
 }

@@ -13,10 +13,10 @@ void glFogf(GLenum pname, GLfloat param);
 void glFogfv(GLenum pname, const GLfloat* params);
 
 void FFP::registerFogFunctions() {
-    REGISTER(glFogi);
+    PROVIDE(glFogi);
 
-    REGISTER(glFogf);
-    REGISTER(glFogfv);
+    PROVIDE(glFogf);
+    PROVIDE(glFogfv);
 }
 
 void glFogi(GLenum pname, GLint param) {

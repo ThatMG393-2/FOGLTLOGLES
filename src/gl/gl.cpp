@@ -38,7 +38,7 @@ void initDebug() {
         glDebugMessageCallback(customDebugCallback, nullptr);
     }
 
-    // REGISTEROV(glDebugMessageCallback);
+    // PROVIDE(glDebugMessageCallback, OV_glDebugMessageCallback);
 }
 
 void customDebugCallback(

@@ -8,6 +8,6 @@ void glBegin(GLenum mode);
 void glEnd();
 
 void FFP::registerImmediateFunctions() {
-    REGISTERREDIR("glBegin", FFPE::Rendering::ImmediateMode::begin);
-    REGISTERREDIR("glEnd", FFPE::Rendering::ImmediateMode::end);
+    PROVIDE(glBegin, FFPE::Rendering::ImmediateMode::begin);
+    PROVIDE(glEnd, FFPE::Rendering::ImmediateMode::end);
 }

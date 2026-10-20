@@ -51,43 +51,43 @@ void glVertex4dv(const GLdouble *v);
 
 void FFP::registerVertexFunctions() {
 #pragma region Vertex Registrations
-    REGISTER(glVertex2s);
-    REGISTER(glVertex3s);
-    REGISTER(glVertex4s);
+    PROVIDE(glVertex2s);
+    PROVIDE(glVertex3s);
+    PROVIDE(glVertex4s);
 
-    REGISTER(glVertex2sv);
-    REGISTER(glVertex3sv);
-    REGISTER(glVertex4sv);
+    PROVIDE(glVertex2sv);
+    PROVIDE(glVertex3sv);
+    PROVIDE(glVertex4sv);
 #pragma endregion
 
 #pragma region Vertex Integer Registrations
-    REGISTER(glVertex2i);
-    REGISTER(glVertex3i);
-    REGISTER(glVertex4i);
+    PROVIDE(glVertex2i);
+    PROVIDE(glVertex3i);
+    PROVIDE(glVertex4i);
 
-    REGISTER(glVertex2iv);
-    REGISTER(glVertex3iv);
-    REGISTER(glVertex4iv);
+    PROVIDE(glVertex2iv);
+    PROVIDE(glVertex3iv);
+    PROVIDE(glVertex4iv);
 #pragma endregion
 
 #pragma region Vertex Float Registrations
-    REGISTER(glVertex2f);
-    REGISTER(glVertex3f);
-    REGISTER(glVertex4f);
+    PROVIDE(glVertex2f);
+    PROVIDE(glVertex3f);
+    PROVIDE(glVertex4f);
 
-    REGISTER(glVertex2fv);
-    REGISTER(glVertex3fv);
-    REGISTER(glVertex4fv);
+    PROVIDE(glVertex2fv);
+    PROVIDE(glVertex3fv);
+    PROVIDE(glVertex4fv);
 #pragma endregion
 
 #pragma region Vertex Double Registrations
-    REGISTER(glVertex2d);
-    REGISTER(glVertex3d);
-    REGISTER(glVertex4d);
+    PROVIDE(glVertex2d);
+    PROVIDE(glVertex3d);
+    PROVIDE(glVertex4d);
 
-    REGISTER(glVertex2dv);
-    REGISTER(glVertex3dv);
-    REGISTER(glVertex4dv);
+    PROVIDE(glVertex2dv);
+    PROVIDE(glVertex3dv);
+    PROVIDE(glVertex4dv);
 #pragma endregion
 }
 

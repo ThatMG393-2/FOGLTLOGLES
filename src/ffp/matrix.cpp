@@ -36,30 +36,30 @@ void glTranslated(GLdouble x, GLdouble y, GLdouble z);
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z);
 
 void FFP::registerMatrixFunctions() {
-    REGISTER(glMatrixMode);
+    PROVIDE(glMatrixMode);
 
-    REGISTER(glPushMatrix);
-    REGISTER(glPopMatrix);
-    REGISTER(glLoadIdentity);
+    PROVIDE(glPushMatrix);
+    PROVIDE(glPopMatrix);
+    PROVIDE(glLoadIdentity);
 
-    REGISTER(glLoadMatrixd);
-    REGISTER(glLoadMatrixf);
+    PROVIDE(glLoadMatrixd);
+    PROVIDE(glLoadMatrixf);
 
-    REGISTER(glOrtho);
-    REGISTER(glOrthof);
-    REGISTER(glFrustum);
+    PROVIDE(glOrtho);
+    PROVIDE(glOrthof);
+    PROVIDE(glFrustum);
 
-    REGISTER(glMultMatrixd);
-    REGISTER(glMultMatrixf);
+    PROVIDE(glMultMatrixd);
+    PROVIDE(glMultMatrixf);
 
-    REGISTER(glRotated);
-    REGISTER(glRotatef);
+    PROVIDE(glRotated);
+    PROVIDE(glRotatef);
 
-    REGISTER(glScaled);
-    REGISTER(glScalef);
+    PROVIDE(glScaled);
+    PROVIDE(glScalef);
 
-    REGISTER(glTranslated);
-    REGISTER(glTranslatef);
+    PROVIDE(glTranslated);
+    PROVIDE(glTranslatef);
 }
 
 void glMatrixMode(GLenum mode) {

@@ -24,19 +24,19 @@ void OV_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, 
 GLenum OV_glCheckFramebufferStatus(GLenum target);
 
 void FBO::registerFramebufferOverrides() {
-    REGISTER(glDrawBuffer);
-    REGISTEROV(glDrawBuffers);
+    PROVIDE(glDrawBuffer);
+    PROVIDE(glDrawBuffers, OV_glDrawBuffers);
 
-    REGISTEROV(glClearBufferfv);
-    REGISTEROV(glClearBufferiv);
-    REGISTEROV(glClearBufferuiv);
+    PROVIDE(glClearBufferfv, OV_glClearBufferfv);
+    PROVIDE(glClearBufferiv, OV_glClearBufferiv);
+    PROVIDE(glClearBufferuiv, OV_glClearBufferuiv);
 
-    REGISTEROV(glFramebufferTexture2D);
-    REGISTEROV(glFramebufferTextureLayer);
-    REGISTEROV(glFramebufferRenderbuffer);
+    PROVIDE(glFramebufferTexture2D, OV_glFramebufferTexture2D);
+    PROVIDE(glFramebufferTextureLayer, OV_glFramebufferTextureLayer);
+    PROVIDE(glFramebufferRenderbuffer, OV_glFramebufferRenderbuffer);
 
-    REGISTEROV(glGetFramebufferAttachmentParameteriv);
-    REGISTEROV(glCheckFramebufferStatus);
+    PROVIDE(glGetFramebufferAttachmentParameteriv, OV_glGetFramebufferAttachmentParameteriv);
+    PROVIDE(glCheckFramebufferStatus, OV_glCheckFramebufferStatus);
 
     fakeDepthbuffer = std::make_shared<FakeDepthFramebuffer>();
 }

@@ -7,7 +7,7 @@
 void glMultiDrawElementsBaseVertex(GLenum mode, const GLsizei* count, GLenum type, const void* const* indices, GLsizei drawcount, const GLint* basevertex);
 
 void Draw::registerBaseVertexFunction() {
-    REGISTER(glMultiDrawElementsBaseVertex);
+    PROVIDE(glMultiDrawElementsBaseVertex);
 
     batcher->init();
 }

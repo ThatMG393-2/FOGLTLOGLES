@@ -3,7 +3,6 @@
 #include <memory>
 
 #define GETFUNCEXT(name, suffix) TO_FUNCPTR(real_eglGetProcAddress(#name suffix))
-#define REGISTEREXT(name, suffix) FOGLTLOGLES::registerFunction(#name, GETFUNCEXT(name, suffix))
 
 namespace Ext {
     void init();

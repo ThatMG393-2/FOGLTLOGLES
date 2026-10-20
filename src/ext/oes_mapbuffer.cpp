@@ -10,10 +10,10 @@ void* glMapBuffer(GLenum target, GLenum access);
 void Ext::register_OES_mapbuffer() {
     if (!ESUtils::isExtensionSupported("GL_OES_mapbuffer")) {
         LOGI("OES_mapbuffer unavailable, using fallback...");
-        REGISTER(glMapBuffer);
+        PROVIDE(glMapBuffer);
     } else {
         LOGI("OES_mapbuffer is present and so used.");
-        REGISTEREXT(glMapBuffer, "OES");
+        PROVIDE(glMapBuffer, GETFUNCEXT(glMapBuffer, "OES"));
     }
 }
 

@@ -10,13 +10,13 @@
 #include <GLES3/gl32.h>
 
 void FFP::registerArrayFunctions() {
-    REGISTER(glEnableClientState);
-    REGISTER(glDisableClientState);
+    PROVIDE(glEnableClientState);
+    PROVIDE(glDisableClientState);
 
-    REGISTER(glVertexPointer);
-    REGISTER(glColorPointer);
-    REGISTER(glNormalPointer);
-    REGISTER(glTexCoordPointer);
+    PROVIDE(glVertexPointer);
+    PROVIDE(glColorPointer);
+    PROVIDE(glNormalPointer);
+    PROVIDE(glTexCoordPointer);
 
     FFPE::Rendering::Arrays::init();
 }

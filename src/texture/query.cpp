@@ -16,10 +16,10 @@ void OV_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLflo
 
 // this should be in gles3.1 but idrc
 void Texture::registerQueryOverrides() {
-    REGISTER(glGetTexImage);
+    PROVIDE(glGetTexImage);
 
-    REGISTEROV(glGetTexLevelParameteriv);
-    REGISTEROV(glGetTexLevelParameterfv);
+    PROVIDE(glGetTexLevelParameteriv, OV_glGetTexLevelParameteriv);
+    PROVIDE(glGetTexLevelParameterfv, OV_glGetTexLevelParameterfv);
 }
 
 void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void* pixels) {

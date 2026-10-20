@@ -26,26 +26,26 @@ EGLBoolean OV_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, E
 inline void eglInit() {
     LOGI("Initializing EGL functions...");
 
-    REGISTER(eglBindAPI);
-    REGISTER(eglChooseConfig);
-    REGISTER(eglCreateContext);
-    REGISTER(eglCreatePbufferSurface);
-    REGISTER(eglCreateWindowSurface);
-    REGISTER(eglDestroyContext);
-    REGISTER(eglDestroySurface);
-    REGISTER(eglGetConfigAttrib);
-    REGISTER(eglGetCurrentContext);
-    REGISTER(eglGetDisplay);
-    REGISTER(eglGetError);
-    REGISTER(eglGetProcAddress);
-    REGISTER(eglInitialize);
-    REGISTEROV(eglMakeCurrent);
-    REGISTER(eglSwapBuffers);
-    REGISTER(eglReleaseThread);
-    REGISTER(eglSwapInterval);
-    REGISTER(eglTerminate);
-    REGISTER(eglGetCurrentSurface);
-    REGISTER(eglQuerySurface);
+    PROVIDE(eglBindAPI);
+    PROVIDE(eglChooseConfig);
+    PROVIDE(eglCreateContext);
+    PROVIDE(eglCreatePbufferSurface);
+    PROVIDE(eglCreateWindowSurface);
+    PROVIDE(eglDestroyContext);
+    PROVIDE(eglDestroySurface);
+    PROVIDE(eglGetConfigAttrib);
+    PROVIDE(eglGetCurrentContext);
+    PROVIDE(eglGetDisplay);
+    PROVIDE(eglGetError);
+    PROVIDE(eglGetProcAddress);
+    PROVIDE(eglInitialize);
+    PROVIDE(eglMakeCurrent, OV_eglMakeCurrent);
+    PROVIDE(eglSwapBuffers);
+    PROVIDE(eglReleaseThread);
+    PROVIDE(eglSwapInterval);
+    PROVIDE(eglTerminate);
+    PROVIDE(eglGetCurrentSurface);
+    PROVIDE(eglQuerySurface);
 
     void* eglGetProcAddressSymbol = dlsym(eglLibHandle, "eglGetProcAddress");
     if (!eglLibHandle || !eglGetProcAddressSymbol) {

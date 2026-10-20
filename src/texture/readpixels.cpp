@@ -4,7 +4,7 @@
 #include "fogltlogles.hpp"
 
 void Texture::registerReadPixelsOverride() {
-    REGISTEROV(glReadPixels);
+    PROVIDE(glReadPixels, OV_glReadPixels);
 }
 
 void OV_glReadPixels(

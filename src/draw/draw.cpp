@@ -9,7 +9,7 @@
 #include <GLES3/gl32.h>
 
 void Draw::registerDrawOverride() {
-    REGISTEROV(glDrawArrays);
+    PROVIDE(glDrawArrays, OV_glDrawArrays);
 }
 
 void OV_glDrawArrays(GLenum mode, GLint first, GLsizei count) {

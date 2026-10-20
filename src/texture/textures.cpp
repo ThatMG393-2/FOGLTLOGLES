@@ -23,13 +23,13 @@ void OV_glTexParameterf(GLenum target, GLenum pname, GLfloat param);
 void OV_glTexParameteri(GLenum target, GLenum pname, GLint param);
 
 void Texture::registerTextureOverrides() {
-    REGISTEROV(glTexImage2D);
-    REGISTEROV(glTexSubImage2D);
-    REGISTEROV(glCopyTexImage2D);
-    REGISTEROV(glCopyTexSubImage2D);
+    PROVIDE(glTexImage2D, OV_glTexImage2D);
+    PROVIDE(glTexSubImage2D, OV_glTexSubImage2D);
+    PROVIDE(glCopyTexImage2D, OV_glCopyTexImage2D);
+    PROVIDE(glCopyTexSubImage2D, OV_glCopyTexSubImage2D);
     
-    REGISTEROV(glTexParameterf);
-    REGISTEROV(glTexParameteri);
+    PROVIDE(glTexParameterf, OV_glTexParameterf);
+    PROVIDE(glTexParameteri, OV_glTexParameteri);
 }
 
 void OV_glTexImage2D(

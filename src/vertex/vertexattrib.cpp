@@ -467,67 +467,67 @@ void glVertexAttribP4ui(GLuint index, GLenum type, GLboolean normalized, GLuint 
 }
  
 void Vertex::init() {
-    REGISTER(glVertexAttrib1s);
-    REGISTER(glVertexAttrib1d);
-    REGISTER(glVertexAttribI1i);
-    REGISTER(glVertexAttribI1ui);
+    PROVIDE(glVertexAttrib1s);
+    PROVIDE(glVertexAttrib1d);
+    PROVIDE(glVertexAttribI1i);
+    PROVIDE(glVertexAttribI1ui);
     
-    REGISTER(glVertexAttrib2s);
-    REGISTER(glVertexAttrib2d);
-    REGISTER(glVertexAttribI2i);
-    REGISTER(glVertexAttribI2ui);
+    PROVIDE(glVertexAttrib2s);
+    PROVIDE(glVertexAttrib2d);
+    PROVIDE(glVertexAttribI2i);
+    PROVIDE(glVertexAttribI2ui);
     
-    REGISTER(glVertexAttrib3s);
-    REGISTER(glVertexAttrib3d);
-    REGISTER(glVertexAttribI3i);
-    REGISTER(glVertexAttribI3ui);
+    PROVIDE(glVertexAttrib3s);
+    PROVIDE(glVertexAttrib3d);
+    PROVIDE(glVertexAttribI3i);
+    PROVIDE(glVertexAttribI3ui);
     
-    REGISTER(glVertexAttrib4s);
-    REGISTER(glVertexAttrib4d);
-    REGISTER(glVertexAttrib4Nub);
+    PROVIDE(glVertexAttrib4s);
+    PROVIDE(glVertexAttrib4d);
+    PROVIDE(glVertexAttrib4Nub);
     
-    REGISTER(glVertexAttrib1fv);
-    REGISTER(glVertexAttrib1sv);
-    REGISTER(glVertexAttrib1dv);
-    REGISTER(glVertexAttribI1iv);
-    REGISTER(glVertexAttribI1uiv);
- 
-    REGISTER(glVertexAttrib2fv);
-    REGISTER(glVertexAttrib2sv);
-    REGISTER(glVertexAttrib2dv);
-    REGISTER(glVertexAttribI2iv);
-    REGISTER(glVertexAttribI2uiv);
- 
-    REGISTER(glVertexAttrib3fv);
-    REGISTER(glVertexAttrib3sv);
-    REGISTER(glVertexAttrib3dv);
-    REGISTER(glVertexAttribI3iv);
-    REGISTER(glVertexAttribI3uiv);
- 
-    REGISTER(glVertexAttrib4fv);
-    REGISTER(glVertexAttrib4sv);
-    REGISTER(glVertexAttrib4dv);
-    REGISTER(glVertexAttrib4iv);
-    REGISTER(glVertexAttrib4bv);
-    REGISTER(glVertexAttrib4ubv);
-    REGISTER(glVertexAttrib4usv);
-    REGISTER(glVertexAttrib4uiv);
- 
-    REGISTER(glVertexAttrib4Nbv);
-    REGISTER(glVertexAttrib4Nsv);
-    REGISTER(glVertexAttrib4Niv);
-    REGISTER(glVertexAttrib4Nubv);
-    REGISTER(glVertexAttrib4Nusv);
-    REGISTER(glVertexAttrib4Nuiv);
- 
-    REGISTER(glVertexAttribP1ui);
-    REGISTER(glVertexAttribP2ui);
-    REGISTER(glVertexAttribP3ui);
-    REGISTER(glVertexAttribP4ui);
+    PROVIDE(glVertexAttrib1fv);
+    PROVIDE(glVertexAttrib1sv);
+    PROVIDE(glVertexAttrib1dv);
+    PROVIDE(glVertexAttribI1iv);
+    PROVIDE(glVertexAttribI1uiv);
 
-    REGISTER(glVertexAttribL1dv);
-    REGISTER(glVertexAttribL2dv);
-    REGISTER(glVertexAttribL3dv);
-    REGISTER(glVertexAttribL4dv);
+    PROVIDE(glVertexAttrib2fv);
+    PROVIDE(glVertexAttrib2sv);
+    PROVIDE(glVertexAttrib2dv);
+    PROVIDE(glVertexAttribI2iv);
+    PROVIDE(glVertexAttribI2uiv);
+
+    PROVIDE(glVertexAttrib3fv);
+    PROVIDE(glVertexAttrib3sv);
+    PROVIDE(glVertexAttrib3dv);
+    PROVIDE(glVertexAttribI3iv);
+    PROVIDE(glVertexAttribI3uiv);
+
+    PROVIDE(glVertexAttrib4fv);
+    PROVIDE(glVertexAttrib4sv);
+    PROVIDE(glVertexAttrib4dv);
+    PROVIDE(glVertexAttrib4iv);
+    PROVIDE(glVertexAttrib4bv);
+    PROVIDE(glVertexAttrib4ubv);
+    PROVIDE(glVertexAttrib4usv);
+    PROVIDE(glVertexAttrib4uiv);
+
+    PROVIDE(glVertexAttrib4Nbv);
+    PROVIDE(glVertexAttrib4Nsv);
+    PROVIDE(glVertexAttrib4Niv);
+    PROVIDE(glVertexAttrib4Nubv);
+    PROVIDE(glVertexAttrib4Nusv);
+    PROVIDE(glVertexAttrib4Nuiv);
+
+    PROVIDE(glVertexAttribP1ui);
+    PROVIDE(glVertexAttribP2ui);
+    PROVIDE(glVertexAttribP3ui);
+    PROVIDE(glVertexAttribP4ui);
+
+    PROVIDE(glVertexAttribL1dv);
+    PROVIDE(glVertexAttribL2dv);
+    PROVIDE(glVertexAttribL3dv);
+    PROVIDE(glVertexAttribL4dv);
 }
  

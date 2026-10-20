@@ -9,6 +9,6 @@ void Ext::register_EXT_blend_func_extended() {
     
     ESUtils::fakeExtensions.insert("ARB_blend_func_extended");
 
-    REGISTEREXT(glBindFragDataLocation, "EXT");
-    REGISTEREXT(glBindFragDataLocationIndexed, "EXT");
+    PROVIDE(glBindFragDataLocation, GETFUNCEXT(glBindFragDataLocation, "EXT"));
+    PROVIDE(glBindFragDataLocationIndexed, GETFUNCEXT(glBindFragDataLocationIndexed, "EXT"));
 }

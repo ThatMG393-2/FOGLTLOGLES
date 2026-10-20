@@ -138,16 +138,16 @@ namespace {
 }
 
 void Shader::init() {
-    REGISTEROV(glShaderSource);
-    REGISTEROV(glCompileShader);
-    REGISTEROV(glDeleteShader);
-    REGISTEROV(glAttachShader);
-    REGISTEROV(glDetachShader);
-    REGISTEROV(glBindAttribLocation);
-    REGISTEROV(glTransformFeedbackVaryings);
-    REGISTEROV(glLinkProgram);
-    REGISTEROV(glUseProgram);
-    REGISTEROV(glDeleteProgram);
+    PROVIDE(glShaderSource, OV_glShaderSource);
+    PROVIDE(glCompileShader, OV_glCompileShader);
+    PROVIDE(glDeleteShader, OV_glDeleteShader);
+    PROVIDE(glAttachShader, OV_glAttachShader);
+    PROVIDE(glDetachShader, OV_glDetachShader);
+    PROVIDE(glBindAttribLocation, OV_glBindAttribLocation);
+    PROVIDE(glTransformFeedbackVaryings, OV_glTransformFeedbackVaryings);
+    PROVIDE(glLinkProgram, OV_glLinkProgram);
+    PROVIDE(glUseProgram, OV_glUseProgram);
+    PROVIDE(glDeleteProgram, OV_glDeleteProgram);
 }
 
 void OV_glShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) {

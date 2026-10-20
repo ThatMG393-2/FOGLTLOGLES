@@ -10,7 +10,7 @@
 void glAlphaFunc(GLenum op, GLclampf threshold);
 
 void FFP::registerAlphaTestFunctions() {
-    REGISTER(glAlphaFunc);
+    PROVIDE(glAlphaFunc);
 }
 
 void glAlphaFunc(GLenum op, GLclampf threshold) {

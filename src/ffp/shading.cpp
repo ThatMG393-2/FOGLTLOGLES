@@ -9,7 +9,7 @@
 void glShadeModel(GLenum mode);
 
 void FFP::registerShadingFunction() {
-    REGISTER(glShadeModel);
+    PROVIDE(glShadeModel);
 }
 
 void glShadeModel(GLenum mode) {

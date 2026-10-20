@@ -7,7 +7,7 @@
 void OV_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
 void FBO::registerRenderbufferWorkaround() {
-    REGISTEROV(glRenderbufferStorage);
+    PROVIDE(glRenderbufferStorage, OV_glRenderbufferStorage);
 }
 
 void OV_glRenderbufferStorage(

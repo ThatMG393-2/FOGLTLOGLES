@@ -8,7 +8,7 @@
 void glClientActiveTexture(GLenum unit);
 
 void FFP::registerTextureFunctions() {
-    REGISTER(glClientActiveTexture);
+    PROVIDE(glClientActiveTexture);
 }
 
 void glClientActiveTexture(GLenum unit) {

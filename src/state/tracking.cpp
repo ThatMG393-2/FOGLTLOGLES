@@ -13,19 +13,19 @@
 #include <utility>
 
 void State::init() {
-    REGISTEROV(glBindFramebuffer);
-    REGISTEROV(glGenFramebuffers);
-    REGISTEROV(glDeleteFramebuffers); // deleting tracked framebuffers
+    PROVIDE(glBindFramebuffer, OV_glBindFramebuffer);
+    PROVIDE(glGenFramebuffers, OV_glGenFramebuffers);
+    PROVIDE(glDeleteFramebuffers, OV_glDeleteFramebuffers); // deleting tracked framebuffers
 
-    REGISTEROV(glBindTexture);
-    REGISTEROV(glDeleteTextures); // deleting tracked iformat
-    REGISTEROV(glActiveTexture);
+    PROVIDE(glBindTexture, OV_glBindTexture);
+    PROVIDE(glDeleteTextures, OV_glDeleteTextures); // deleting tracked iformat
+    PROVIDE(glActiveTexture, OV_glActiveTexture);
 
-    REGISTEROV(glBindBuffer);
-    REGISTEROV(glBufferData);
+    PROVIDE(glBindBuffer, OV_glBindBuffer);
+    PROVIDE(glBufferData, OV_glBufferData);
 
-    REGISTEROV(glBindRenderbuffer);
-    REGISTEROV(glDeleteRenderbuffers); // deleting tracked iformat
+    PROVIDE(glBindRenderbuffer, OV_glBindRenderbuffer);
+    PROVIDE(glDeleteRenderbuffers, OV_glDeleteRenderbuffers); // deleting tracked iformat
 
     trackedStates = std::make_shared<TrackedStates>();
 }

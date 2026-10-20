@@ -7,8 +7,8 @@ void glClearDepth(double d);
 void glDepthRange(double near, double far);
 
 void Core::registerTranslatedFunctions() {
-    REGISTER(glClearDepth);
-    REGISTER(glDepthRange);
+    PROVIDE(glClearDepth);
+    PROVIDE(glDepthRange);
 }
 
 void glClearDepth(double d) {

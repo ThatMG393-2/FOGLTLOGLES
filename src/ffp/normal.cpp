@@ -10,7 +10,7 @@
 void glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz);
 
 void FFP::registerNormalFunctions() {
-    REGISTER(glNormal3f);
+    PROVIDE(glNormal3f);
 }
 
 void glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz) {

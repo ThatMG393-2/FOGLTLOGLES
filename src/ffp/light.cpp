@@ -8,9 +8,9 @@ void glLightfv(GLenum light, GLenum pname, const GLfloat *params);
 void glLightModelfv(GLenum pname, const GLfloat *params);
 
 void FFP::registerLightFunctions() {
-    REGISTER(glLightfv);
+    PROVIDE(glLightfv);
 
-    REGISTER(glLightModelfv);
+    PROVIDE(glLightModelfv);
 }
 
 void glLightfv(GLenum light, GLenum pname, const GLfloat *params) {

@@ -39,11 +39,11 @@ void Core::registerBrandingOverride() {
         glGetString(GL_RENDERER)
     );
 
-    REGISTEROV(glGetString);
-    REGISTEROV(glGetIntegerv);
-    REGISTEROV(glGetStringi);
-    REGISTEROV(glEnable);
-    REGISTEROV(glDisable);
+    PROVIDE(glGetString, OV_glGetString);
+    PROVIDE(glGetIntegerv, OV_glGetIntegerv);
+    PROVIDE(glGetStringi, OV_glGetStringi);
+    PROVIDE(glEnable, OV_glEnable);
+    PROVIDE(glDisable, OV_glDisable);
 }
 
 const GLubyte* OV_glGetString(GLenum name) {

@@ -16,7 +16,7 @@ void Ext::register_EXT_buffer_storage() {
     ESUtils::fakeExtensions.insert("GL_ARB_buffer_storage");
 
     glBufferStorageEXT = reinterpret_cast<PFNGLBUFFERSTORAGEEXTPROC>(GETFUNCEXT(glBufferStorage, "EXT"));
-    REGISTER(glBufferStorage);
+    PROVIDE(glBufferStorage);
 }
 
 void glBufferStorage(GLenum target, GLsizeiptr size, const void* data, GLbitfield flags) {

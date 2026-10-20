@@ -10,7 +10,7 @@
 void glTexCoord2f(GLfloat s, GLfloat t);
 
 void FFP::registerTexCoordFunctions() {
-    REGISTER(glTexCoord2f);
+    PROVIDE(glTexCoord2f);
 }
 
 void glTexCoord2f(GLfloat s, GLfloat t) {

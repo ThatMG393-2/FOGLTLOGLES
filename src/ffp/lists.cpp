@@ -19,17 +19,17 @@ void glListBase(GLuint base);
 GLboolean glIsList(GLuint list);
 
 void FFP::registerListsFunctions() {
-    REGISTER(glGenLists);
-    REGISTER(glDeleteLists);
+    PROVIDE(glGenLists);
+    PROVIDE(glDeleteLists);
 
-    REGISTER(glNewList);
-    REGISTER(glEndList);
+    PROVIDE(glNewList);
+    PROVIDE(glEndList);
 
-    REGISTER(glCallList);
-    REGISTER(glCallLists);
+    PROVIDE(glCallList);
+    PROVIDE(glCallLists);
 
-    REGISTER(glListBase);
-    REGISTER(glIsList);
+    PROVIDE(glListBase);
+    PROVIDE(glIsList);
 }
 
 GLuint glGenLists(GLsizei range) {
