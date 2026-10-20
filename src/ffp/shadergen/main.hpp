@@ -84,8 +84,8 @@ inline GLuint getCachedOrNewProgram(GLbitfield64 state) {
         &convertedFS, nullptr
     );
 
-    OV_glCompileShader(vertexShader);
-    OV_glCompileShader(fragmentShader);
+    CALL(glCompileShader, vertexShader);
+    CALL(glCompileShader, fragmentShader);
 
     if (debugEnabled) {
         LOGI("ShaderGen | VS :");
@@ -99,7 +99,7 @@ inline GLuint getCachedOrNewProgram(GLbitfield64 state) {
     glAttachShader(renderingProgram, vertexShader);
     glAttachShader(renderingProgram, fragmentShader);
 
-    OV_glLinkProgram(renderingProgram);
+    CALL(glLinkProgram, renderingProgram);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);

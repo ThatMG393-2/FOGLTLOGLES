@@ -4,20 +4,21 @@
 
 #include <GLES2/gl2.h>
 
-void OV_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+static void glRenderbufferStorageHook(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
 void FBO::registerRenderbufferWorkaround() {
-    PROVIDE(glRenderbufferStorage, OV_glRenderbufferStorage);
+    PROVIDE(glRenderbufferStorage);
+    HOOK(glRenderbufferStorage, glRenderbufferStorageHook);
 }
 
-void OV_glRenderbufferStorage(
+static void glRenderbufferStorageHook(NEXT(glRenderbufferStorage) next,
     GLenum target,
     GLenum internalformat,
     GLsizei width,
     GLsizei height
 ) {
     fixStorageParams(internalformat);
-    glRenderbufferStorage(target, internalformat, width, height);
+    next(target, internalformat, width, height);
 
     trackRenderbufferFormat(internalformat);
 }

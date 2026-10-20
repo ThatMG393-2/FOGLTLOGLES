@@ -71,6 +71,14 @@ namespace FOGLTLOGLES {
         e.hooked = true;
         e.exposed = TO_FUNCPTR(&C::dispatch);
     }
+
+    template <auto Key, typename... Args>
+    decltype(auto) call(const char* name, Args&&... args) {
+        using C = Chain<Key>;
+        if (!C::entry) C::entry = &entryFor(name);
+        if (!C::entry->base && C::hooks.empty()) return Key(std::forward<Args>(args)...);
+        return C::run(0, std::forward<Args>(args)...);
+    }
 }
 
 #define PROVIDE_PICK_(_1, _2, N, ...) N
@@ -79,6 +87,9 @@ namespace FOGLTLOGLES {
 #define PROVIDE(...) PROVIDE_PICK_(__VA_ARGS__, PROVIDE_2_, PROVIDE_1_, _)(__VA_ARGS__)
 
 #define HOOK(f, fn) FOGLTLOGLES::addHook<&f>(#f, fn)
+#define CALL(f, ...) FOGLTLOGLES::call<&f>(#f, __VA_ARGS__)
+#define NEXT(f) FOGLTLOGLES::Chain<&f>::Next
+#define CHAIN(f) &FOGLTLOGLES::Chain<&f>::dispatch
 
 #ifndef GET_OVFUNC
 #define GET_OVFUNC(type, name) reinterpret_cast<type>(FOGLTLOGLES::getFunctionAddress(#name))

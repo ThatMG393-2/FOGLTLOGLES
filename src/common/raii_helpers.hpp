@@ -53,7 +53,7 @@ class SaveActiveTextureUnit : public Restorable {
 
 protected:
     void _internal_restore() override {
-        OV_glActiveTexture(this->activeTextureUnit);
+        CALL(glActiveTexture, this->activeTextureUnit);
     }
 };
 
@@ -71,7 +71,7 @@ struct SaveBoundedTexture : public Restorable  {
 
 protected:
     void _internal_restore() override {
-        OV_glBindTexture(this->textureType, this->boundedTexture);
+        CALL(glBindTexture, this->textureType, this->boundedTexture);
     }
 };
 
@@ -89,7 +89,7 @@ struct SaveBoundedBuffer : public Restorable  {
 
 protected:
     void _internal_restore() override {
-        OV_glBindBuffer(this->bufferType, this->boundedBuffer);
+        CALL(glBindBuffer, this->bufferType, this->boundedBuffer);
         // LOGI("bufres: type=%u", this->bufferType);
     }
 };
@@ -117,7 +117,7 @@ struct SaveBoundedFramebuffer : public Restorable  {
 
 protected:
     void _internal_restore() override {
-        OV_glBindFramebuffer(this->framebufferType, this->boundedFramebuffer);
+        CALL(glBindFramebuffer, this->framebufferType, this->boundedFramebuffer);
     }
 };
 
@@ -135,7 +135,7 @@ struct SaveUsedProgram : public Restorable {
 protected:
     void _internal_restore() override {
         // LOGI("restore program! current=%u previous=%u", trackedStates->currentlyUsedProgram, this->activeProgram);
-        OV_glUseProgram(this->activeProgram);
+        CALL(glUseProgram, this->activeProgram);
     }
 };
 

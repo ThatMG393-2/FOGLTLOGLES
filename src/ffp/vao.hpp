@@ -55,8 +55,8 @@ inline void mapVertexData(
                     using VertexData = TypedVertexData<4, POS, 4, COL, 3, NOR, 4, TEX>;
                     GLsizei newVABSize = count * sizeof(VertexData);
                     
-                    OV_glBindBuffer(GL_ARRAY_BUFFER, vab);
-                    OV_glBufferData(
+                    CALL(glBindBuffer, GL_ARRAY_BUFFER, vab);
+                    CALL(glBufferData,
                         GL_ARRAY_BUFFER,
                         newVABSize,
                         nullptr,
@@ -195,8 +195,8 @@ inline std::unique_ptr<SaveBoundedBuffer> prepareVAOForRendering(GLsizei count) 
         if (!vertexArray->parameters.planar) {
             GLsizei newVABSize = count * vertexArray->parameters.stride;
 
-            OV_glBindBuffer(GL_ARRAY_BUFFER, vab);
-            OV_glBufferData(
+            CALL(glBindBuffer, GL_ARRAY_BUFFER, vab);
+            CALL(glBufferData,
                 GL_ARRAY_BUFFER,
                 newVABSize,
                 vertexArray->parameters.firstElement,

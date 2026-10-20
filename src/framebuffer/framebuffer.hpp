@@ -187,7 +187,7 @@ struct FakeDepthFramebuffer {
 
         SaveBoundedTexture sbt(GL_TEXTURE_2D);
 
-        OV_glBindTexture(GL_TEXTURE_2D, drawFramebufferTexture);
+        CALL(glBindTexture, GL_TEXTURE_2D, drawFramebufferTexture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -198,7 +198,7 @@ struct FakeDepthFramebuffer {
     }
 
     ~FakeDepthFramebuffer() {
-        OV_glDeleteTextures(1, &drawFramebufferTexture);
+        CALL(glDeleteTextures, 1, &drawFramebufferTexture);
         glDeleteFramebuffers(1, &drawFramebuffer);
         glDeleteFramebuffers(1, &readFramebuffer);
     }
@@ -210,7 +210,7 @@ struct FakeDepthFramebuffer {
         data = pxs;
 
         SaveBoundedTexture sbt(GL_TEXTURE_2D);
-        OV_glBindTexture(GL_TEXTURE_2D, drawFramebufferTexture);
+        CALL(glBindTexture, GL_TEXTURE_2D, drawFramebufferTexture);
 
         glTexImage2D(
             GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F,

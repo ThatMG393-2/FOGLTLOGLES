@@ -15,11 +15,11 @@
 #define CAST_TO_CUBYTE(str) reinterpret_cast<const GLubyte*>(str)
 #endif
 
-const GLubyte* OV_glGetString(GLenum name);
-void OV_glGetIntegerv(GLenum pname, int* v);
-const GLubyte* OV_glGetStringi(GLenum pname, int index);
-void OV_glEnable(GLenum cap);
-void OV_glDisable(GLenum cap);
+static const GLubyte* glGetStringHook(NEXT(glGetString) next, GLenum name);
+static void glGetIntegervHook(NEXT(glGetIntegerv) next, GLenum pname, int* v);
+static const GLubyte* glGetStringiHook(NEXT(glGetStringi) next, GLenum pname, int index);
+static void glEnableHook(NEXT(glEnable) next, GLenum cap);
+static void glDisableHook(NEXT(glDisable) next, GLenum cap);
 
 inline std::string glVersion;
 inline std::string rendererString;
@@ -39,14 +39,19 @@ void Core::registerBrandingOverride() {
         glGetString(GL_RENDERER)
     );
 
-    PROVIDE(glGetString, OV_glGetString);
-    PROVIDE(glGetIntegerv, OV_glGetIntegerv);
-    PROVIDE(glGetStringi, OV_glGetStringi);
-    PROVIDE(glEnable, OV_glEnable);
-    PROVIDE(glDisable, OV_glDisable);
+    PROVIDE(glGetString);
+    HOOK(glGetString, glGetStringHook);
+    PROVIDE(glGetIntegerv);
+    HOOK(glGetIntegerv, glGetIntegervHook);
+    PROVIDE(glGetStringi);
+    HOOK(glGetStringi, glGetStringiHook);
+    PROVIDE(glEnable);
+    HOOK(glEnable, glEnableHook);
+    PROVIDE(glDisable);
+    HOOK(glDisable, glDisableHook);
 }
 
-const GLubyte* OV_glGetString(GLenum name) {
+static const GLubyte* glGetStringHook(NEXT(glGetString) next, GLenum name) {
     switch (name) {
         case GL_VERSION:
             return CAST_TO_CUBYTE(glVersion.c_str());
@@ -65,11 +70,11 @@ const GLubyte* OV_glGetString(GLenum name) {
             return CAST_TO_CUBYTE(fakeExtensionsJoined.c_str());
 
         default:
-            return glGetString(name);
+            return next(name);
     }
 }
 
-void OV_glGetIntegerv(GLenum pname, int* v) {
+static void glGetIntegervHook(NEXT(glGetIntegerv) next, GLenum pname, int* v) {
     if (debugEnabled) LOGI("OV_glGetIntegerv: pname=%u", pname);
     switch (pname) {
         case GL_NUM_EXTENSIONS:
@@ -89,12 +94,12 @@ void OV_glGetIntegerv(GLenum pname, int* v) {
             break;
 
         default:
-            glGetIntegerv(pname, v);
+            next(pname, v);
             break;
     }
 }
 
-const GLubyte* OV_glGetStringi(GLenum pname, int index) {
+static const GLubyte* glGetStringiHook(NEXT(glGetStringi) next, GLenum pname, int index) {
     switch (pname) {
         case GL_EXTENSIONS:
             if (index < 0 || static_cast<size_t>(index) >= ESUtils::fakeExtensions.size()) return nullptr;
@@ -105,12 +110,12 @@ const GLubyte* OV_glGetStringi(GLenum pname, int index) {
             }
 
         default:
-            return glGetStringi(pname, index);
+            return next(pname, index);
     }
 }
 
-void OV_glEnable(GLenum cap) {
-    if (FFPE::List::addCommand<OV_glEnable>(cap)) return;
+static void glEnableHook(NEXT(glEnable) next, GLenum cap) {
+    if (FFPE::List::addCommand<CHAIN(glEnable)>(cap)) return;
     switch (cap) {
         case GL_ALPHA_TEST:
         case GL_TEXTURE_2D:
@@ -127,15 +132,15 @@ void OV_glEnable(GLenum cap) {
 
         default:
             if (debugEnabled) LOGI("glEnable : cap=%u", cap);
-            glEnable(cap);
+            next(cap);
             break;
     }
     
     trackedStates->capabilitiesState[cap] = true;
 }
 
-void OV_glDisable(GLenum cap) {
-    if (FFPE::List::addCommand<OV_glDisable>(cap)) return;
+static void glDisableHook(NEXT(glDisable) next, GLenum cap) {
+    if (FFPE::List::addCommand<CHAIN(glDisable)>(cap)) return;
     switch (cap) {
         case GL_ALPHA_TEST:
         case GL_TEXTURE_2D:
@@ -147,7 +152,7 @@ void OV_glDisable(GLenum cap) {
     
         default:
             if (debugEnabled) LOGI("glDisable : cap=%u", cap);
-            glDisable(cap);
+            next(cap);
             break;
     }
 

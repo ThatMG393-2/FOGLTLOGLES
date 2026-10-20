@@ -40,7 +40,7 @@ struct MDElementsBatcher {
         if (!usable) return;
         int threadSize = std::min(omp_get_max_threads(), std::max(1, primcount / 128));
 
-        OV_glBindBuffer(GL_COPY_WRITE_BUFFER, buffer);
+        CALL(glBindBuffer, GL_COPY_WRITE_BUFFER, buffer);
         glBufferData(GL_COPY_WRITE_BUFFER, totalCount * typeSize, nullptr, GL_STREAM_DRAW);
 
         GLsizei offset = 0;
@@ -66,7 +66,7 @@ struct MDElementsBatcher {
             }
         }
 
-        OV_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+        CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, buffer);
     }
 };
 

@@ -58,12 +58,12 @@ inline void init() {
 
     GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
     const GLchar* computeShaderSource = quadEABGeneratorCS.c_str();
-    OV_glShaderSource(computeShader, 1, &computeShaderSource, nullptr);
-    OV_glCompileShader(computeShader);
+    CALL(glShaderSource, computeShader, 1, &computeShaderSource, nullptr);
+    CALL(glCompileShader, computeShader);
 
     eabGeneratorProgram = glCreateProgram();
     glAttachShader(eabGeneratorProgram, computeShader);
-    OV_glLinkProgram(eabGeneratorProgram);
+    CALL(glLinkProgram, eabGeneratorProgram);
 
     numQuadsUniLoc = glGetUniformLocation(eabGeneratorProgram, "numQuads");
 
@@ -74,11 +74,11 @@ inline GLuint generateEAB(GLuint count) {
     GLuint quadCount = count / 4;
     GLuint eabCount = quadCount * 6;
 
-    OV_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesOutputBuffer);
+    CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, indicesOutputBuffer);
 
     auto cached = cachedIndices.find(quadCount);
     if (cached != cachedIndices.end()) {
-        OV_glBufferData(
+        CALL(glBufferData,
             GL_ELEMENT_ARRAY_BUFFER,
             cached->second.size() * sizeof(GLuint),
             cached->second.data(),
@@ -88,7 +88,7 @@ inline GLuint generateEAB(GLuint count) {
         return eabCount;
     }
 
-    OV_glBufferData(
+    CALL(glBufferData,
         GL_ELEMENT_ARRAY_BUFFER,
         eabCount * sizeof(GLuint),
         nullptr,
@@ -126,7 +126,7 @@ inline void drawQuads(GLuint count) {
 
     auto buffer = Rendering::VAO::prepareVAOForRendering(count);
     auto renderingProgram = Rendering::ShaderGen::getCachedOrNewProgram(States::Manager::getOrBuildState());
-    OV_glUseProgram(renderingProgram);
+    CALL(glUseProgram, renderingProgram);
     Rendering::ShaderGen::Uniforms::setupInputsForRendering(renderingProgram);
 
     GLuint realCount = generateEAB(count);
@@ -149,7 +149,7 @@ inline void drawArrays(GLenum mode, GLint first, GLuint count) {
 
         auto buffer = Rendering::VAO::prepareVAOForRendering(count);
         auto renderingProgram = Rendering::ShaderGen::getCachedOrNewProgram(FFPE::States::Manager::getOrBuildState());
-        OV_glUseProgram(renderingProgram);
+        CALL(glUseProgram, renderingProgram);
         Rendering::ShaderGen::Uniforms::setupInputsForRendering(renderingProgram);
 
         glDrawArrays(mode, first, count);

@@ -10,45 +10,53 @@
 #include <GLES3/gl3.h>
 
 void glDrawBuffer(GLenum buffer);
-void OV_glDrawBuffers(GLsizei n, const GLenum* buffers);
+static void glDrawBuffersHook(NEXT(glDrawBuffers) next, GLsizei n, const GLenum* buffers);
 
-void OV_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* value);
-void OV_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* value);
-void OV_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* value);
+static void glClearBufferfvHook(NEXT(glClearBufferfv) next, GLenum buffer, GLint drawbuffer, const GLfloat* value);
+static void glClearBufferivHook(NEXT(glClearBufferiv) next, GLenum buffer, GLint drawbuffer, const GLint* value);
+static void glClearBufferuivHook(NEXT(glClearBufferuiv) next, GLenum buffer, GLint drawbuffer, const GLuint* value);
 
-void OV_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-void OV_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
-void OV_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+static void glFramebufferTexture2DHook(NEXT(glFramebufferTexture2D) next, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+static void glFramebufferTextureLayerHook(NEXT(glFramebufferTextureLayer) next, GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
+static void glFramebufferRenderbufferHook(NEXT(glFramebufferRenderbuffer) next, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 
-void OV_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params);
+static void glGetFramebufferAttachmentParameterivHook(NEXT(glGetFramebufferAttachmentParameteriv) next, GLenum target, GLenum attachment, GLenum pname, GLint* params);
 GLenum OV_glCheckFramebufferStatus(GLenum target);
 
 void FBO::registerFramebufferOverrides() {
     PROVIDE(glDrawBuffer);
-    PROVIDE(glDrawBuffers, OV_glDrawBuffers);
+    PROVIDE(glDrawBuffers);
+    HOOK(glDrawBuffers, glDrawBuffersHook);
 
-    PROVIDE(glClearBufferfv, OV_glClearBufferfv);
-    PROVIDE(glClearBufferiv, OV_glClearBufferiv);
-    PROVIDE(glClearBufferuiv, OV_glClearBufferuiv);
+    PROVIDE(glClearBufferfv);
+    HOOK(glClearBufferfv, glClearBufferfvHook);
+    PROVIDE(glClearBufferiv);
+    HOOK(glClearBufferiv, glClearBufferivHook);
+    PROVIDE(glClearBufferuiv);
+    HOOK(glClearBufferuiv, glClearBufferuivHook);
 
-    PROVIDE(glFramebufferTexture2D, OV_glFramebufferTexture2D);
-    PROVIDE(glFramebufferTextureLayer, OV_glFramebufferTextureLayer);
-    PROVIDE(glFramebufferRenderbuffer, OV_glFramebufferRenderbuffer);
+    PROVIDE(glFramebufferTexture2D);
+    HOOK(glFramebufferTexture2D, glFramebufferTexture2DHook);
+    PROVIDE(glFramebufferTextureLayer);
+    HOOK(glFramebufferTextureLayer, glFramebufferTextureLayerHook);
+    PROVIDE(glFramebufferRenderbuffer);
+    HOOK(glFramebufferRenderbuffer, glFramebufferRenderbufferHook);
 
-    PROVIDE(glGetFramebufferAttachmentParameteriv, OV_glGetFramebufferAttachmentParameteriv);
+    PROVIDE(glGetFramebufferAttachmentParameteriv);
+    HOOK(glGetFramebufferAttachmentParameteriv, glGetFramebufferAttachmentParameterivHook);
     PROVIDE(glCheckFramebufferStatus, OV_glCheckFramebufferStatus);
 
     fakeDepthbuffer = std::make_shared<FakeDepthFramebuffer>();
 }
 
 void glDrawBuffer(GLenum buffer) {
-    OV_glDrawBuffers(1, &buffer);
+    CALL(glDrawBuffers, 1, &buffer);
 }
 
-void OV_glDrawBuffers(GLsizei n, const GLenum* buffers) {
+static void glDrawBuffersHook(NEXT(glDrawBuffers) next, GLsizei n, const GLenum* buffers) {
     auto framebuffer = getFramebufferObject(GL_DRAW_FRAMEBUFFER);
     if (!framebuffer) {
-        glDrawBuffers(n, buffers);
+        next(n, buffers);
         return;
     }
 
@@ -65,31 +73,31 @@ void OV_glDrawBuffers(GLsizei n, const GLenum* buffers) {
         else framebuffer->physicalDrawbuffers[i] = GL_NONE;
     }
 
-    glDrawBuffers(n, framebuffer->physicalDrawbuffers);
+    next(n, framebuffer->physicalDrawbuffers);
 }
 
-void OV_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* value) {
+static void glClearBufferfvHook(NEXT(glClearBufferfv) next, GLenum buffer, GLint drawbuffer, const GLfloat* value) {
     clearFramebuffer(buffer, drawbuffer);
-    glClearBufferfv(buffer, drawbuffer, value);
+    next(buffer, drawbuffer, value);
 }
 
-void OV_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* value) {
+static void glClearBufferivHook(NEXT(glClearBufferiv) next, GLenum buffer, GLint drawbuffer, const GLint* value) {
     clearFramebuffer(buffer, drawbuffer);
-    glClearBufferiv(buffer, drawbuffer, value);
+    next(buffer, drawbuffer, value);
 }
 
-void OV_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* value) {
+static void glClearBufferuivHook(NEXT(glClearBufferuiv) next, GLenum buffer, GLint drawbuffer, const GLuint* value) {
     clearFramebuffer(buffer, drawbuffer);
-    glClearBufferuiv(buffer, drawbuffer, value);
+    next(buffer, drawbuffer, value);
 }
 
 
-void OV_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) {
+static void glFramebufferTexture2DHook(NEXT(glFramebufferTexture2D) next, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) {
     auto framebuffer = getFramebufferObject(target);
     GLint attachmentIndex = getAttachmentIndex(attachment);
 
     if (!framebuffer || attachmentIndex == -1) {
-        glFramebufferTexture2D(target, attachment, textarget, texture, level);
+        next(target, attachment, textarget, texture, level);
         return;
     }
 
@@ -112,12 +120,12 @@ void OV_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarge
     rebindFramebuffer(target, framebuffer, attachment);
 }
 
-void OV_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer) {
+static void glFramebufferTextureLayerHook(NEXT(glFramebufferTextureLayer) next, GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer) {
     auto framebuffer = getFramebufferObject(target);
     GLint attachmentIndex = getAttachmentIndex(attachment);
 
     if (!framebuffer || attachmentIndex == -1) {
-        glFramebufferTextureLayer(target, attachment, texture, level, layer);
+        next(target, attachment, texture, level, layer);
         return;
     }
 
@@ -142,12 +150,12 @@ void OV_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint textu
     rebindFramebuffer(target, framebuffer, attachment);
 }
 
-void OV_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
+static void glFramebufferRenderbufferHook(NEXT(glFramebufferRenderbuffer) next, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
     auto framebuffer = getFramebufferObject(target);
     GLint attachmentIndex = getAttachmentIndex(attachment);
 
     if (!framebuffer || attachmentIndex == -1) {
-        glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+        next(target, attachment, renderbuffertarget, renderbuffer);
         return;
     }
 
@@ -168,12 +176,12 @@ void OV_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum rende
     rebindFramebuffer(target, framebuffer, attachment);
 }
 
-void OV_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params) {
+static void glGetFramebufferAttachmentParameterivHook(NEXT(glGetFramebufferAttachmentParameteriv) next, GLenum target, GLenum attachment, GLenum pname, GLint* params) {
     auto framebuffer = getFramebufferObject(target);
     GLint attachmentIndex = getAttachmentIndex(attachment);
 
     if (!framebuffer || attachmentIndex == -1) {
-        glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+        next(target, attachment, pname, params);
         return;
     }
 

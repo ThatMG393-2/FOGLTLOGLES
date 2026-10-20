@@ -92,11 +92,11 @@ struct MDElementsBaseVertexBatcher {
         GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
         
         const GLchar* castedSource = COMPUTE_BATCHER_GLSL_BASE.c_str();
-        OV_glShaderSource(computeShader, 1, &castedSource, nullptr);
-        OV_glCompileShader(computeShader);
+        CALL(glShaderSource, computeShader, 1, &castedSource, nullptr);
+        CALL(glCompileShader, computeShader);
 
         glAttachShader(computeProgram, computeShader);
-        OV_glLinkProgram(computeProgram);
+        CALL(glLinkProgram, computeProgram);
 
         glDeleteShader(computeShader);
 

@@ -12,26 +12,47 @@
 #include <GLES2/gl2.h>
 #include <utility>
 
+static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer);
+static void glGenFramebuffersHook(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers);
+static void glDeleteFramebuffersHook(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers);
+static void glBindTextureHook(NEXT(glBindTexture) next, GLenum target, GLuint texture);
+static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures);
+static void glActiveTextureHook(NEXT(glActiveTexture) next, GLuint texture);
+static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buffer);
+static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+static void glBindRenderbufferHook(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer);
+static void glDeleteRenderbuffersHook(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers);
+
 void State::init() {
-    PROVIDE(glBindFramebuffer, OV_glBindFramebuffer);
-    PROVIDE(glGenFramebuffers, OV_glGenFramebuffers);
-    PROVIDE(glDeleteFramebuffers, OV_glDeleteFramebuffers); // deleting tracked framebuffers
+    PROVIDE(glBindFramebuffer);
+    HOOK(glBindFramebuffer, glBindFramebufferHook);
+    PROVIDE(glGenFramebuffers);
+    HOOK(glGenFramebuffers, glGenFramebuffersHook);
+    PROVIDE(glDeleteFramebuffers); // deleting tracked framebuffers
+    HOOK(glDeleteFramebuffers, glDeleteFramebuffersHook);
 
-    PROVIDE(glBindTexture, OV_glBindTexture);
-    PROVIDE(glDeleteTextures, OV_glDeleteTextures); // deleting tracked iformat
-    PROVIDE(glActiveTexture, OV_glActiveTexture);
+    PROVIDE(glBindTexture);
+    HOOK(glBindTexture, glBindTextureHook);
+    PROVIDE(glDeleteTextures); // deleting tracked iformat
+    HOOK(glDeleteTextures, glDeleteTexturesHook);
+    PROVIDE(glActiveTexture);
+    HOOK(glActiveTexture, glActiveTextureHook);
 
-    PROVIDE(glBindBuffer, OV_glBindBuffer);
-    PROVIDE(glBufferData, OV_glBufferData);
+    PROVIDE(glBindBuffer);
+    HOOK(glBindBuffer, glBindBufferHook);
+    PROVIDE(glBufferData);
+    HOOK(glBufferData, glBufferDataHook);
 
-    PROVIDE(glBindRenderbuffer, OV_glBindRenderbuffer);
-    PROVIDE(glDeleteRenderbuffers, OV_glDeleteRenderbuffers); // deleting tracked iformat
+    PROVIDE(glBindRenderbuffer);
+    HOOK(glBindRenderbuffer, glBindRenderbufferHook);
+    PROVIDE(glDeleteRenderbuffers); // deleting tracked iformat
+    HOOK(glDeleteRenderbuffers, glDeleteRenderbuffersHook);
 
     trackedStates = std::make_shared<TrackedStates>();
 }
 
-void OV_glBindFramebuffer(GLenum target, GLuint framebuffer) {
-    glBindFramebuffer(target, framebuffer);
+static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer) {
+    next(target, framebuffer);
 
     switch (target) {
         case GL_FRAMEBUFFER:
@@ -45,46 +66,46 @@ void OV_glBindFramebuffer(GLenum target, GLuint framebuffer) {
 }
 
 
-void OV_glGenFramebuffers(GLsizei n, GLuint* framebuffers) {
-    glGenFramebuffers(n, framebuffers);
+static void glGenFramebuffersHook(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers) {
+    next(n, framebuffers);
 
     for (GLsizei i = 0; i < n; ++i) {
         trackedStates->framebufferState.trackedFramebuffers.insert({ framebuffers[i], std::make_shared<Framebuffer>() });
     }
 }
 
-void OV_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers) {
-    glDeleteFramebuffers(n, framebuffers);
+static void glDeleteFramebuffersHook(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers) {
+    next(n, framebuffers);
 
     for (GLsizei i = 0; i < n; ++i) {
         trackedStates->framebufferState.trackedFramebuffers.erase(framebuffers[i]);
     }
 }
 
-void OV_glBindTexture(GLenum target, GLuint texture) {
-    if (FFPE::List::addCommand<OV_glBindTexture>(target, texture)) return;
-    glBindTexture(target, texture);
+static void glBindTextureHook(NEXT(glBindTexture) next, GLenum target, GLuint texture) {
+    if (FFPE::List::addCommand<CHAIN(glBindTexture)>(target, texture)) return;
+    next(target, texture);
 
     trackedStates->activeTextureState->bindTextureToTarget(target, texture);
     if (debugEnabled) LOGI("glBindTexture : target=%u texture=%u", target, texture);
 }
 
-void OV_glDeleteTextures(GLsizei n, const GLuint *textures) {
-    glDeleteTextures(n, textures);
+static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures) {
+    next(n, textures);
 
     for (GLsizei i = 0; i < n; ++i) {
         trackedStates->activeTextureState->textureInternalFormats.erase(textures[i]);
     }
 }
 
-void OV_glActiveTexture(GLuint texture) {
-    glActiveTexture(texture);
+static void glActiveTextureHook(NEXT(glActiveTexture) next, GLuint texture) {
+    next(texture);
 
     trackedStates->setActiveTextureUnit(texture);
 }
 
-void OV_glBindBuffer(GLenum target, GLuint buffer) {
-    glBindBuffer(target, buffer);
+static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buffer) {
+    next(target, buffer);
 
     // LOGI("BindBuffer: target %i, buffer %u", target, buffer);
 
@@ -92,21 +113,21 @@ void OV_glBindBuffer(GLenum target, GLuint buffer) {
     trackedStates->boundBuffers[target].buffer = buffer;
 }
 
-void OV_glBufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
-    glBufferData(target, size, data, usage);
+static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
+    next(target, size, data, usage);
 
     // LOGI("BufferData: target %i, size %ld, usage %i", target, size, usage);
     trackedStates->boundBuffers[target].size = size;
 }
 
-void OV_glBindRenderbuffer(GLenum target, GLuint renderbuffer) {
-    glBindRenderbuffer(target, renderbuffer);
+static void glBindRenderbufferHook(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer) {
+    next(target, renderbuffer);
 
     trackedStates->boundRenderbuffer = renderbuffer;
 }
 
-void OV_glDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers) {
-    glDeleteRenderbuffers(n, renderbuffers);
+static void glDeleteRenderbuffersHook(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers) {
+    next(n, renderbuffers);
 
     for (GLint i = 0; i < n; ++i) {
         trackedStates->renderbufferInternalFormats.erase(renderbuffers[i]);

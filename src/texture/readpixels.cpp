@@ -3,11 +3,14 @@
 #include "texture/readpixels.hpp"
 #include "fogltlogles.hpp"
 
+static void glReadPixelsHook(NEXT(glReadPixels) next, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
+
 void Texture::registerReadPixelsOverride() {
-    PROVIDE(glReadPixels, OV_glReadPixels);
+    PROVIDE(glReadPixels);
+    HOOK(glReadPixels, glReadPixelsHook);
 }
 
-void OV_glReadPixels(
+static void glReadPixelsHook(NEXT(glReadPixels) next,
     GLint x, GLint y,
     GLsizei width, GLsizei height,
     GLenum format, GLenum type, void* pixels
@@ -15,7 +18,7 @@ void OV_glReadPixels(
     if (format == GL_DEPTH_COMPONENT) {
         fakeDepthbuffer->storeDepthToFakeDraw(x, y, width, height, pixels);
     } else {
-        glReadPixels(
+        next(
             x, y,
             width, height,
             format, type, pixels
