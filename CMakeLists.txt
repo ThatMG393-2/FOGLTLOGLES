@@ -118,8 +118,8 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,--as-needed")
     
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${PROJECT_NAME}>
-        COMMENT "Stripping symbols from ${PROJECT_NAME}"
+        COMMAND ${CMAKE_STRIP} --strip-debug $<TARGET_FILE:${PROJECT_NAME}>
+        COMMENT "Stripping debug info from ${PROJECT_NAME}"
     )
 else()
     string(REPLACE ";" " " DEBUG_FLAGS_STR "${DEBUG_FLAGS}")
