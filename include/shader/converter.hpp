@@ -12,27 +12,17 @@
 
 #include <stdexcept>
 #include <string>
-#include <GLES2/gl2.h>
 #include <shaderc/shaderc.hpp>
 
 namespace ShaderConverter {
     inline shaderc::SpvCompilationResult compileToSPV(shaderc_shader_kind kind, std::string& source) {
         int shaderVersion = 0;
-        std::string shaderProfile = ""; // useless
-        getShaderVersion(source, shaderVersion, shaderProfile);
+        std::string_view profile;
+        getShaderVersion(source, shaderVersion, profile);
 
-        shaderc::Compiler compiler;
-        shaderc::SpvCompilationResult result;
+        GLSLPreprocessor::run(source, shaderVersion);
 
-        GLSLRegexPreprocessor::moveVariableInitialization(source);
-        GLSLRegexPreprocessor::removeLineDirectives(source);
-        GLSLRegexPreprocessor::removeUselessExtensions(source);
-
-        if (shaderVersion <= 120) {
-            GLSLRegexPreprocessor::fixDeprecatedTextureFunction(source);
-        }
-
-        if (getEnvironmentVar("LIBGL_VGPU_DUMP") == "1") {
+        if (SHADER_DUMP) {
             LOGE("Preprocessed source:");
             LOGE("%s", source.c_str());
         }
@@ -43,7 +33,7 @@ namespace ShaderConverter {
         }
 
         shaderc::CompileOptions options = generateGLSL2SPVOptions(shaderVersion);
-        result = compiler.CompileGlslToSpv(source, kind, "glslShader", options);
+        shaderc::SpvCompilationResult result = getShaderCompiler().CompileGlslToSpv(source, kind, "glslShader", options);
 
         if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
             LOGE("Failed to compile shader: %s", result.GetErrorMessage().c_str());
@@ -53,33 +43,41 @@ namespace ShaderConverter {
         return result;
     }
 
-    inline void transpileSPV2ESSL(shaderc_shader_kind kind, shaderc::SpvCompilationResult& module, std::string& target) {
-        spirv_cross::CompilerGLSL::Options options = generateSPV2ESSLOptions(ESUtils::shadingVersion);
-
-        SPVCExposed_CompilerGLSL compiler({ module.cbegin(), module.cend() });
-        compiler.set_common_options(options);
+    inline void transpileSPV2ESSL(shaderc_shader_kind kind, const shaderc::SpvCompilationResult& module, std::string& target) {
+        SPVCExposed_CompilerGLSL compiler(module.cbegin(), static_cast<size_t>(module.cend() - module.cbegin()));
+        compiler.set_common_options(generateSPV2ESSLOptions(ESUtils::shadingVersion));
 
         SPVCPostprocessor::processSPVBytecode(compiler, kind);
 
         target = compiler.compile();
 
-        if (getEnvironmentVar("LIBGL_VGPU_DUMP") == "1") {
+        if (SHADER_DUMP) {
             LOGI("Transpiled GLSL -> ESSL source:");
             LOGI("%s", target.c_str());
         }
     }
 
-    inline void convertAndFix(shaderc_shader_kind kind, std::string& source) {
-        if (getEnvironmentVar("LIBGL_VGPU_DUMP") == "1") {
+    // `ubos` receives the UBO bindings used by the converted shader.
+    inline void convertAndFix(
+        shaderc_shader_kind kind,
+        std::string& source,
+        std::vector<std::pair<std::string, uint32_t>>* ubos = nullptr
+    ) {
+        if (SHADER_DUMP) {
             LOGI("Converting and fixing %s!", getKindStringFromKind(kind));
-        }
-
-        if (getEnvironmentVar("LIBGL_VGPU_DUMP") == "1") {
             LOGI("Received GLSL source:");
             LOGI("%s", source.c_str());
         }
 
         shaderc::SpvCompilationResult spirv = compileToSPV(kind, source);
-        transpileSPV2ESSL(kind, spirv, source);
+
+        SPVCPostprocessor::bindingSink = ubos;
+        try {
+            transpileSPV2ESSL(kind, spirv, source);
+        } catch (...) {
+            SPVCPostprocessor::bindingSink = nullptr;
+            throw;
+        }
+        SPVCPostprocessor::bindingSink = nullptr;
     }
 }; // namespace ShaderConverter

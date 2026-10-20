@@ -7,29 +7,34 @@
 
 #include <stdexcept>
 
-inline void upgradeTo330(shaderc_shader_kind kind, std::string& src) {
-    shaderc::CompileOptions options;
-    options.SetGenerateDebugInfo();
-    options.SetSourceLanguage(shaderc_source_language_glsl);
-    options.SetTargetEnvironment(shaderc_target_env_opengl, 330);
-    options.SetForcedVersionProfile(330, shaderc_profile_core);
-    options.SetOptimizationLevel(shaderc_optimization_level_zero);
-    options.SetVulkanRulesRelaxed(true);
-    
-    options.SetAutoMapLocations(true);
-    options.SetAutoBindUniforms(true);
+inline const bool SHADER_DUMP = getEnvironmentVar("LIBGL_VGPU_DUMP") == "1";
 
-    shaderc::Compiler spirvCompiler;
-    shaderc::SpvCompilationResult module = spirvCompiler.CompileGlslToSpv(
-        src, kind, 
-        "shader_upgto330", options
-    );
+inline shaderc::Compiler& getShaderCompiler() {
+    static thread_local shaderc::Compiler compiler;
+    return compiler;
+}
+
+inline void upgradeTo330(shaderc_shader_kind kind, std::string& src) {
+    static const shaderc::CompileOptions options = [] {
+        shaderc::CompileOptions o;
+        o.SetGenerateDebugInfo();
+        o.SetSourceLanguage(shaderc_source_language_glsl);
+        o.SetTargetEnvironment(shaderc_target_env_opengl, 330);
+        o.SetForcedVersionProfile(330, shaderc_profile_core);
+        o.SetOptimizationLevel(shaderc_optimization_level_zero);
+        o.SetVulkanRulesRelaxed(true);
+        o.SetAutoMapLocations(true);
+        o.SetAutoBindUniforms(true);
+        return o;
+    }();
+
+    shaderc::SpvCompilationResult module = getShaderCompiler().CompileGlslToSpv(src, kind, "shader_upgto330", options);
 
     if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
         throw std::runtime_error("Shader upgrade error: " + module.GetErrorMessage());
     }
 
-    spirv_cross::CompilerGLSL glslCompiler({ module.cbegin(), module.cend() });
+    spirv_cross::CompilerGLSL glslCompiler(module.cbegin(), static_cast<size_t>(module.cend() - module.cbegin()));
     spirv_cross::CompilerGLSL::Options glslOptions;
     glslOptions.version = 330;
     glslOptions.es = false;
@@ -38,10 +43,10 @@ inline void upgradeTo330(shaderc_shader_kind kind, std::string& src) {
     glslOptions.force_flattened_io_blocks = true;
     glslOptions.enable_storage_image_qualifier_deduction = false;
     glslCompiler.set_common_options(glslOptions);
-    
+
     src = glslCompiler.compile();
 
-    if (getEnvironmentVar("LIBGL_VGPU_DUMP") == "1") {
+    if (SHADER_DUMP) {
         LOGI("Upgraded shader source:");
         LOGI("%s", src.c_str());
     }
