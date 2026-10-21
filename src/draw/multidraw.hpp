@@ -35,7 +35,7 @@ struct MDElementsBatcher {
         GLsizei totalCount, GLint typeSize,
         GLsizei primcount,
         const GLsizei* count, const void* const* indices,
-        SaveBoundedBuffer sbb
+        const SaveBoundedBuffer& sbb
     ) {
         if (!usable) return;
         int threadSize = std::min(omp_get_max_threads(), std::max(1, primcount / 128));
@@ -56,7 +56,7 @@ struct MDElementsBatcher {
             {
                 GLsizei dataSize = count[i] * typeSize;
             
-                if (sbb.boundedBuffer != 0) {
+                if (sbb.saved() != 0) {
                     glCopyBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GL_COPY_WRITE_BUFFER, (GLintptr)indices[i], offset, dataSize);    
                 } else {
                     glBufferSubData(GL_COPY_WRITE_BUFFER, offset, dataSize, indices[i]);

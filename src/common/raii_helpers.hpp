@@ -10,7 +10,7 @@
 
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl32.h>
-#include <string>
+#include <string_view>
 
 // TODO:
 // What if we keep track of bounded textures, buffer, etc ourselves
@@ -18,176 +18,154 @@
 
 // PROGRESS: PARTIAL
 
+template <typename Derived>
 class Restorable {
-protected:
     bool restored = false;
 
-    virtual void _internal_restore() {
-        throw std::runtime_error("Restorable::_internal_restore() not implemented!");
-    }
+protected:
+    Restorable() = default;
+    ~Restorable() = default;
 
 public:
-    virtual ~Restorable() { }
+    Restorable(const Restorable&) = delete;
+    Restorable& operator=(const Restorable&) = delete;
 
-    void restore() {
+    void restore() noexcept {
         if (restored) return;
-        _internal_restore();
         restored = true;
+        static_cast<Derived*>(this)->_internal_restore();
     }
 
-    bool isRestored() {
+    bool isRestored() const noexcept {
         return restored;
     }
 };
 
-class SaveActiveTextureUnit : public Restorable {
+class SaveActiveTextureUnit : public Restorable<SaveActiveTextureUnit> {
+    friend class Restorable<SaveActiveTextureUnit>;
     GLuint activeTextureUnit;
 
-    SaveActiveTextureUnit() {
-        this->activeTextureUnit = trackedStates->activeTextureUnit;
+    void _internal_restore() {
+        CALL(glActiveTexture, activeTextureUnit);
     }
 
-    ~SaveActiveTextureUnit() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
-        CALL(glActiveTexture, this->activeTextureUnit);
-    }
+public:
+    SaveActiveTextureUnit() : activeTextureUnit(trackedStates->activeTextureUnit) { }
+    ~SaveActiveTextureUnit() { restore(); }
 };
 
-struct SaveBoundedTexture : public Restorable  {
-    GLuint boundedTexture;
+class SaveBoundedTexture : public Restorable<SaveBoundedTexture> {
+    friend class Restorable<SaveBoundedTexture>;
     GLenum textureType;
+    GLuint boundedTexture;
 
-    SaveBoundedTexture(GLenum textureType) : textureType(textureType) {
-        this->boundedTexture = trackedStates->activeTextureState->boundTextures[textureType];
+    void _internal_restore() {
+        CALL(glBindTexture, textureType, boundedTexture);
     }
 
-    ~SaveBoundedTexture() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
-        CALL(glBindTexture, this->textureType, this->boundedTexture);
-    }
+public:
+    explicit SaveBoundedTexture(GLenum textureType)
+        : textureType(textureType),
+          boundedTexture(trackedStates->activeTextureState->boundTextures[textureType]) { }
+    ~SaveBoundedTexture() { restore(); }
 };
 
-struct SaveBoundedBuffer : public Restorable  {
-    GLuint boundedBuffer;
+class SaveBoundedBuffer : public Restorable<SaveBoundedBuffer> {
+    friend class Restorable<SaveBoundedBuffer>;
     GLenum bufferType;
+    GLuint boundedBuffer;
 
-    SaveBoundedBuffer(GLenum bufferType) : bufferType(bufferType) {
-        this->boundedBuffer = trackedStates->boundBuffers[bufferType].buffer;
+    void _internal_restore() {
+        CALL(glBindBuffer, bufferType, boundedBuffer);
     }
 
-    ~SaveBoundedBuffer() {
-        restore();
-    }
+public:
+    explicit SaveBoundedBuffer(GLenum bufferType)
+        : bufferType(bufferType),
+          boundedBuffer(trackedStates->boundBuffers[bufferType].buffer) { }
+    ~SaveBoundedBuffer() { restore(); }
 
-protected:
-    void _internal_restore() override {
-        CALL(glBindBuffer, this->bufferType, this->boundedBuffer);
-        // LOGI("bufres: type=%u", this->bufferType);
-    }
+    GLuint saved() const noexcept { return boundedBuffer; }
 };
 
-struct SaveBoundedFramebuffer : public Restorable  {
+class SaveBoundedFramebuffer : public Restorable<SaveBoundedFramebuffer> {
+    friend class Restorable<SaveBoundedFramebuffer>;
     GLenum framebufferType;
     GLuint boundedFramebuffer;
 
-    SaveBoundedFramebuffer(GLenum framebufferType) : framebufferType(framebufferType) {
-        switch (framebufferType) {
-            case GL_FRAMEBUFFER:
-            case GL_DRAW_FRAMEBUFFER:
-                this->boundedFramebuffer = trackedStates->framebufferState.boundDrawFramebuffer;
-            break;
-
-            case GL_READ_FRAMEBUFFER:
-                this->boundedFramebuffer = trackedStates->framebufferState.boundReadFramebuffer;
-            break;
-        }
+    static GLuint queryBound(GLenum type) {
+        return type == GL_READ_FRAMEBUFFER
+            ? trackedStates->framebufferState.boundReadFramebuffer
+            : trackedStates->framebufferState.boundDrawFramebuffer;
     }
 
-    ~SaveBoundedFramebuffer() {
-        restore();
+    void _internal_restore() {
+        CALL(glBindFramebuffer, framebufferType, boundedFramebuffer);
     }
 
-protected:
-    void _internal_restore() override {
-        CALL(glBindFramebuffer, this->framebufferType, this->boundedFramebuffer);
-    }
+public:
+    explicit SaveBoundedFramebuffer(GLenum framebufferType)
+        : framebufferType(framebufferType),
+          boundedFramebuffer(queryBound(framebufferType)) { }
+    ~SaveBoundedFramebuffer() { restore(); }
 };
 
-struct SaveUsedProgram : public Restorable {
+class SaveUsedProgram : public Restorable<SaveUsedProgram> {
+    friend class Restorable<SaveUsedProgram>;
     GLuint activeProgram;
 
-    SaveUsedProgram() {
-        this->activeProgram = trackedStates->currentlyUsedProgram;
+    void _internal_restore() {
+        CALL(glUseProgram, activeProgram);
     }
 
-    ~SaveUsedProgram() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
-        // LOGI("restore program! current=%u previous=%u", trackedStates->currentlyUsedProgram, this->activeProgram);
-        CALL(glUseProgram, this->activeProgram);
-    }
+public:
+    SaveUsedProgram() : activeProgram(trackedStates->currentlyUsedProgram) { }
+    ~SaveUsedProgram() { restore(); }
 };
 
-struct GLDebugGroup : public Restorable {
-    GLDebugGroup(std::string name) {
-        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION_KHR, 0, -1, name.c_str());
-    }
+class GLDebugGroup : public Restorable<GLDebugGroup> {
+    friend class Restorable<GLDebugGroup>;
 
-    ~GLDebugGroup() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
+    void _internal_restore() {
         glPopDebugGroup();
     }
+
+public:
+    explicit GLDebugGroup(std::string_view name) {
+        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION_KHR, 0, static_cast<GLsizei>(name.size()), name.data());
+    }
+    ~GLDebugGroup() { restore(); }
 };
 
-struct SaveClientArray : public Restorable {
+class SaveClientArray : public Restorable<SaveClientArray> {
+    friend class Restorable<SaveClientArray>;
     GLenum targetArray;
     bool isEnabled;
-    
-    SaveClientArray(GLenum array) : targetArray(array) {
-        this->isEnabled = FFPE::States::ClientState::Arrays::getArray(array)->enabled;
-    }
 
-    ~SaveClientArray() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
+    void _internal_restore() {
         if (isEnabled) glEnableClientState(targetArray);
         else glDisableClientState(targetArray);
     }
+
+public:
+    explicit SaveClientArray(GLenum array)
+        : targetArray(array),
+          isEnabled(FFPE::States::ClientState::Arrays::getArray(array)->enabled) { }
+    ~SaveClientArray() { restore(); }
 };
 
-struct SaveTexCoordClientArray : public Restorable {
+class SaveTexCoordClientArray : public Restorable<SaveTexCoordClientArray> {
+    friend class Restorable<SaveTexCoordClientArray>;
     GLenum targetUnit;
     bool isEnabled;
-    
-    SaveTexCoordClientArray(GLenum unit) : targetUnit(unit) {
-        this->isEnabled = FFPE::States::ClientState::Arrays::getTexCoordArray(unit)->enabled;
+
+    void _internal_restore() {
+        FFPE::States::ClientState::Arrays::getTexCoordArray(targetUnit)->enabled = isEnabled;
     }
 
-    ~SaveTexCoordClientArray() {
-        restore();
-    }
-
-protected:
-    void _internal_restore() override {
-        if (isEnabled) FFPE::States::ClientState::Arrays::getTexCoordArray(targetUnit)->enabled = true;
-        else FFPE::States::ClientState::Arrays::getTexCoordArray(targetUnit)->enabled = false;
-    }
+public:
+    explicit SaveTexCoordClientArray(GLenum unit)
+        : targetUnit(unit),
+          isEnabled(FFPE::States::ClientState::Arrays::getTexCoordArray(unit)->enabled) { }
+    ~SaveTexCoordClientArray() { restore(); }
 };
