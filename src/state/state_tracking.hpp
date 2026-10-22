@@ -76,6 +76,11 @@ struct TrackedStates {
     // FAST_MAP_BI(GLenum, FAST_MAP_BI(GLuint, Buffer)) boundBuffers2;
     // Buffer Type, Buffer ID, Buffer
 
+    GLuint boundVertexArray = 0;
+
+    // VAO, Element Array Buffer
+    FAST_MAP_BI(GLuint, GLuint) vertexArrayElementBuffers;
+
     GLuint currentlyUsedProgram;
 
     TrackedStates() {

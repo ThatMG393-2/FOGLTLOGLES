@@ -10,6 +10,7 @@
 #include "common/log.hpp"
 
 #include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
 #include <utility>
 
 static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer);
@@ -20,6 +21,8 @@ static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const G
 static void glActiveTextureHook(NEXT(glActiveTexture) next, GLuint texture);
 static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buffer);
 static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+static void glBindVertexArrayHook(NEXT(glBindVertexArray) next, GLuint array);
+static void glDeleteVertexArraysHook(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays);
 static void glBindRenderbufferHook(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer);
 static void glDeleteRenderbuffersHook(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers);
 
@@ -42,6 +45,11 @@ void State::init() {
     HOOK(glBindBuffer, glBindBufferHook);
     PROVIDE(glBufferData);
     HOOK(glBufferData, glBufferDataHook);
+
+    PROVIDE(glBindVertexArray);
+    HOOK(glBindVertexArray, glBindVertexArrayHook);
+    PROVIDE(glDeleteVertexArrays);
+    HOOK(glDeleteVertexArrays, glDeleteVertexArraysHook);
 
     PROVIDE(glBindRenderbuffer);
     HOOK(glBindRenderbuffer, glBindRenderbufferHook);
@@ -111,6 +119,31 @@ static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buff
 
     trackedStates->boundBuffers[target].target = target;
     trackedStates->boundBuffers[target].buffer = buffer;
+
+    if (target == GL_ELEMENT_ARRAY_BUFFER) {
+        trackedStates->vertexArrayElementBuffers[trackedStates->boundVertexArray] = buffer;
+    }
+}
+
+static void glBindVertexArrayHook(NEXT(glBindVertexArray) next, GLuint array) {
+    next(array);
+
+    trackedStates->boundVertexArray = array;
+    trackedStates->boundBuffers[GL_ELEMENT_ARRAY_BUFFER].target = GL_ELEMENT_ARRAY_BUFFER;
+    trackedStates->boundBuffers[GL_ELEMENT_ARRAY_BUFFER].buffer = trackedStates->vertexArrayElementBuffers[array];
+}
+
+static void glDeleteVertexArraysHook(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays) {
+    next(n, arrays);
+
+    for (GLsizei i = 0; i < n; ++i) {
+        trackedStates->vertexArrayElementBuffers.erase(arrays[i]);
+
+        if (trackedStates->boundVertexArray == arrays[i]) {
+            trackedStates->boundVertexArray = 0;
+            trackedStates->boundBuffers[GL_ELEMENT_ARRAY_BUFFER].buffer = trackedStates->vertexArrayElementBuffers[0];
+        }
+    }
 }
 
 static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
