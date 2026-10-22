@@ -8,6 +8,6 @@ void glBegin(GLenum mode);
 void glEnd();
 
 void FFP::registerImmediateFunctions() {
-    PROVIDE(glBegin, FFPE::Rendering::ImmediateMode::begin);
-    PROVIDE(glEnd, FFPE::Rendering::ImmediateMode::end);
+    FOGLTLOGLES::provide("glBegin", TO_FUNCPTR(FFPE::Rendering::ImmediateMode::begin));
+    FOGLTLOGLES::provide("glEnd", TO_FUNCPTR(FFPE::Rendering::ImmediateMode::end));
 }

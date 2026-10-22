@@ -7,7 +7,7 @@
 GLenum OV_glGetError();
 
 void Core::registerNoErrorOverride() {
-    // PROVIDE(glGetError, OV_glGetError);
+    // OVERRIDE(glGetError);
 }
 
 GLenum OV_glGetError() {

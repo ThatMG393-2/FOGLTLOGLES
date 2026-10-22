@@ -11,17 +11,17 @@
 
 void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void* pixels);
 
-static void glGetTexLevelParameterivHook(NEXT(glGetTexLevelParameteriv) next, GLenum target, GLint level, GLenum pname, GLint* params);
-static void glGetTexLevelParameterfvHook(NEXT(glGetTexLevelParameterfv) next, GLenum target, GLint level, GLenum pname, GLfloat* params);
+static void HK_glGetTexLevelParameteriv(NEXT(glGetTexLevelParameteriv) next, GLenum target, GLint level, GLenum pname, GLint* params);
+static void HK_glGetTexLevelParameterfv(NEXT(glGetTexLevelParameterfv) next, GLenum target, GLint level, GLenum pname, GLfloat* params);
 
 // this should be in gles3.1 but idrc
 void Texture::registerQueryOverrides() {
     PROVIDE(glGetTexImage);
 
     PROVIDE(glGetTexLevelParameteriv);
-    HOOK(glGetTexLevelParameteriv, glGetTexLevelParameterivHook);
+    HOOK(glGetTexLevelParameteriv);
     PROVIDE(glGetTexLevelParameterfv);
-    HOOK(glGetTexLevelParameterfv, glGetTexLevelParameterfvHook);
+    HOOK(glGetTexLevelParameterfv);
 }
 
 void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void* pixels) {
@@ -55,7 +55,7 @@ void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, void*
     );
 }
 
-static void glGetTexLevelParameterivHook(NEXT(glGetTexLevelParameteriv) next, GLenum target, GLint level, GLenum pname, GLint* params) {
+static void HK_glGetTexLevelParameteriv(NEXT(glGetTexLevelParameteriv) next, GLenum target, GLint level, GLenum pname, GLint* params) {
     LOGI("glGetTexLevelParameteriv: target=%u level=%i pname=%u", target, level, pname);
     
     if (isProxyTexture(target)) {
@@ -66,7 +66,7 @@ static void glGetTexLevelParameterivHook(NEXT(glGetTexLevelParameteriv) next, GL
     next(target, level, pname, params);
 }
 
-static void glGetTexLevelParameterfvHook(NEXT(glGetTexLevelParameterfv) next, GLenum target, GLint level, GLenum pname, GLfloat* params) {
+static void HK_glGetTexLevelParameterfv(NEXT(glGetTexLevelParameterfv) next, GLenum target, GLint level, GLenum pname, GLfloat* params) {
     LOGI("glGetTexLevelParameterfv: target=%u level=%i pname=%u", target, level, pname);
     
     if (isProxyTexture(target)) {

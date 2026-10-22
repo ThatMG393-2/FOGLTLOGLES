@@ -4,14 +4,14 @@
 
 #include <GLES2/gl2.h>
 
-static void glRenderbufferStorageHook(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
 void FBO::registerRenderbufferWorkaround() {
     PROVIDE(glRenderbufferStorage);
-    HOOK(glRenderbufferStorage, glRenderbufferStorageHook);
+    HOOK(glRenderbufferStorage);
 }
 
-static void glRenderbufferStorageHook(NEXT(glRenderbufferStorage) next,
+static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next,
     GLenum target,
     GLenum internalformat,
     GLsizei width,

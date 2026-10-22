@@ -3,14 +3,14 @@
 #include "texture/readpixels.hpp"
 #include "fogltlogles.hpp"
 
-static void glReadPixelsHook(NEXT(glReadPixels) next, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
+static void HK_glReadPixels(NEXT(glReadPixels) next, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
 
 void Texture::registerReadPixelsOverride() {
     PROVIDE(glReadPixels);
-    HOOK(glReadPixels, glReadPixelsHook);
+    HOOK(glReadPixels);
 }
 
-static void glReadPixelsHook(NEXT(glReadPixels) next,
+static void HK_glReadPixels(NEXT(glReadPixels) next,
     GLint x, GLint y,
     GLsizei width, GLsizei height,
     GLenum format, GLenum type, void* pixels

@@ -13,7 +13,7 @@ void Ext::register_OES_mapbuffer() {
         PROVIDE(glMapBuffer);
     } else {
         LOGI("OES_mapbuffer is present and so used.");
-        PROVIDE(glMapBuffer, GETFUNCEXT(glMapBuffer, "OES"));
+        FOGLTLOGLES::provide("glMapBuffer", GETFUNCEXT(glMapBuffer, "OES"));
     }
 }
 

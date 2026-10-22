@@ -14,31 +14,31 @@
 
 #include <GLES2/gl2.h>
 
-static void glTexImage2DHook(NEXT(glTexImage2D) next, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels);
-static void glTexSubImage2DHook(NEXT(glTexSubImage2D) next, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels);
-static void glCopyTexImage2DHook(NEXT(glCopyTexImage2D) next, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
-static void glCopyTexSubImage2DHook(NEXT(glCopyTexSubImage2D) next, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+static void HK_glTexImage2D(NEXT(glTexImage2D) next, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels);
+static void HK_glTexSubImage2D(NEXT(glTexSubImage2D) next, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels);
+static void HK_glCopyTexImage2D(NEXT(glCopyTexImage2D) next, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
+static void HK_glCopyTexSubImage2D(NEXT(glCopyTexSubImage2D) next, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
-static void glTexParameterfHook(NEXT(glTexParameterf) next, GLenum target, GLenum pname, GLfloat param);
-static void glTexParameteriHook(NEXT(glTexParameteri) next, GLenum target, GLenum pname, GLint param);
+static void HK_glTexParameterf(NEXT(glTexParameterf) next, GLenum target, GLenum pname, GLfloat param);
+static void HK_glTexParameteri(NEXT(glTexParameteri) next, GLenum target, GLenum pname, GLint param);
 
 void Texture::registerTextureOverrides() {
     PROVIDE(glTexImage2D);
-    HOOK(glTexImage2D, glTexImage2DHook);
+    HOOK(glTexImage2D);
     PROVIDE(glTexSubImage2D);
-    HOOK(glTexSubImage2D, glTexSubImage2DHook);
+    HOOK(glTexSubImage2D);
     PROVIDE(glCopyTexImage2D);
-    HOOK(glCopyTexImage2D, glCopyTexImage2DHook);
+    HOOK(glCopyTexImage2D);
     PROVIDE(glCopyTexSubImage2D);
-    HOOK(glCopyTexSubImage2D, glCopyTexSubImage2DHook);
+    HOOK(glCopyTexSubImage2D);
     
     PROVIDE(glTexParameterf);
-    HOOK(glTexParameterf, glTexParameterfHook);
+    HOOK(glTexParameterf);
     PROVIDE(glTexParameteri);
-    HOOK(glTexParameteri, glTexParameteriHook);
+    HOOK(glTexParameteri);
 }
 
-static void glTexImage2DHook(NEXT(glTexImage2D) next,
+static void HK_glTexImage2D(NEXT(glTexImage2D) next,
     GLenum target,
     GLint level,
     GLint internalFormat,
@@ -70,7 +70,7 @@ static void glTexImage2DHook(NEXT(glTexImage2D) next,
     trackTextureFormat(internalFormat);
 }
 
-static void glTexSubImage2DHook(NEXT(glTexSubImage2D) next,
+static void HK_glTexSubImage2D(NEXT(glTexSubImage2D) next,
     GLenum target, GLint level, 
     GLint xOffset, GLint yOffset, 
     GLsizei width, GLsizei height, 
@@ -102,7 +102,7 @@ static void glTexSubImage2DHook(NEXT(glTexSubImage2D) next,
     );
 }
 
-static void glCopyTexImage2DHook(NEXT(glCopyTexImage2D) next,
+static void HK_glCopyTexImage2D(NEXT(glCopyTexImage2D) next,
     GLenum target, GLint level,
     GLenum internalformat,
     GLint x, GLint y,
@@ -128,7 +128,7 @@ static void glCopyTexImage2DHook(NEXT(glCopyTexImage2D) next,
     );
 }
 
-static void glCopyTexSubImage2DHook(NEXT(glCopyTexSubImage2D) next,
+static void HK_glCopyTexSubImage2D(NEXT(glCopyTexSubImage2D) next,
     GLenum target, GLint level,
     GLint xoffset, GLint yoffset,
     GLint x, GLint y,
@@ -141,7 +141,7 @@ static void glCopyTexSubImage2DHook(NEXT(glCopyTexSubImage2D) next,
     }
 }
 
-static void glTexParameterfHook(NEXT(glTexParameterf) next, GLenum target, GLenum pname, GLfloat param) {
+static void HK_glTexParameterf(NEXT(glTexParameterf) next, GLenum target, GLenum pname, GLfloat param) {
     // LOGI("glTexParameterf: target=%u pname=%u param=%f", target, pname, param);
     if (FFPE::List::addCommand<CHAIN(glTexParameterf)>(target, pname, param)) return;
 
@@ -149,7 +149,7 @@ static void glTexParameterfHook(NEXT(glTexParameterf) next, GLenum target, GLenu
     next(target, pname, param);
 }
 
-static void glTexParameteriHook(NEXT(glTexParameteri) next, GLenum target, GLenum pname, GLint param) {
+static void HK_glTexParameteri(NEXT(glTexParameteri) next, GLenum target, GLenum pname, GLint param) {
     // LOGI("glTexParameteri: target=%u pname=%u param=%d", target, pname, param);
     if (FFPE::List::addCommand<CHAIN(glTexParameteri)>(target, pname, param)) return;
 

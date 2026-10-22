@@ -13,53 +13,53 @@
 #include <GLES3/gl3.h>
 #include <utility>
 
-static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer);
-static void glGenFramebuffersHook(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers);
-static void glDeleteFramebuffersHook(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers);
-static void glBindTextureHook(NEXT(glBindTexture) next, GLenum target, GLuint texture);
-static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures);
-static void glActiveTextureHook(NEXT(glActiveTexture) next, GLuint texture);
-static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buffer);
-static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-static void glBindVertexArrayHook(NEXT(glBindVertexArray) next, GLuint array);
-static void glDeleteVertexArraysHook(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays);
-static void glBindRenderbufferHook(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer);
-static void glDeleteRenderbuffersHook(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers);
+static void HK_glBindFramebuffer(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer);
+static void HK_glGenFramebuffers(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers);
+static void HK_glDeleteFramebuffers(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers);
+static void HK_glBindTexture(NEXT(glBindTexture) next, GLenum target, GLuint texture);
+static void HK_glDeleteTextures(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures);
+static void HK_glActiveTexture(NEXT(glActiveTexture) next, GLuint texture);
+static void HK_glBindBuffer(NEXT(glBindBuffer) next, GLenum target, GLuint buffer);
+static void HK_glBufferData(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+static void HK_glBindVertexArray(NEXT(glBindVertexArray) next, GLuint array);
+static void HK_glDeleteVertexArrays(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays);
+static void HK_glBindRenderbuffer(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer);
+static void HK_glDeleteRenderbuffers(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers);
 
 void State::init() {
     PROVIDE(glBindFramebuffer);
-    HOOK(glBindFramebuffer, glBindFramebufferHook);
+    HOOK(glBindFramebuffer);
     PROVIDE(glGenFramebuffers);
-    HOOK(glGenFramebuffers, glGenFramebuffersHook);
+    HOOK(glGenFramebuffers);
     PROVIDE(glDeleteFramebuffers); // deleting tracked framebuffers
-    HOOK(glDeleteFramebuffers, glDeleteFramebuffersHook);
+    HOOK(glDeleteFramebuffers);
 
     PROVIDE(glBindTexture);
-    HOOK(glBindTexture, glBindTextureHook);
+    HOOK(glBindTexture);
     PROVIDE(glDeleteTextures); // deleting tracked iformat
-    HOOK(glDeleteTextures, glDeleteTexturesHook);
+    HOOK(glDeleteTextures);
     PROVIDE(glActiveTexture);
-    HOOK(glActiveTexture, glActiveTextureHook);
+    HOOK(glActiveTexture);
 
     PROVIDE(glBindBuffer);
-    HOOK(glBindBuffer, glBindBufferHook);
+    HOOK(glBindBuffer);
     PROVIDE(glBufferData);
-    HOOK(glBufferData, glBufferDataHook);
+    HOOK(glBufferData);
 
     PROVIDE(glBindVertexArray);
-    HOOK(glBindVertexArray, glBindVertexArrayHook);
+    HOOK(glBindVertexArray);
     PROVIDE(glDeleteVertexArrays);
-    HOOK(glDeleteVertexArrays, glDeleteVertexArraysHook);
+    HOOK(glDeleteVertexArrays);
 
     PROVIDE(glBindRenderbuffer);
-    HOOK(glBindRenderbuffer, glBindRenderbufferHook);
+    HOOK(glBindRenderbuffer);
     PROVIDE(glDeleteRenderbuffers); // deleting tracked iformat
-    HOOK(glDeleteRenderbuffers, glDeleteRenderbuffersHook);
+    HOOK(glDeleteRenderbuffers);
 
     trackedStates = std::make_shared<TrackedStates>();
 }
 
-static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer) {
+static void HK_glBindFramebuffer(NEXT(glBindFramebuffer) next, GLenum target, GLuint framebuffer) {
     next(target, framebuffer);
 
     switch (target) {
@@ -74,7 +74,7 @@ static void glBindFramebufferHook(NEXT(glBindFramebuffer) next, GLenum target, G
 }
 
 
-static void glGenFramebuffersHook(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers) {
+static void HK_glGenFramebuffers(NEXT(glGenFramebuffers) next, GLsizei n, GLuint* framebuffers) {
     next(n, framebuffers);
 
     for (GLsizei i = 0; i < n; ++i) {
@@ -82,7 +82,7 @@ static void glGenFramebuffersHook(NEXT(glGenFramebuffers) next, GLsizei n, GLuin
     }
 }
 
-static void glDeleteFramebuffersHook(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers) {
+static void HK_glDeleteFramebuffers(NEXT(glDeleteFramebuffers) next, GLsizei n, const GLuint* framebuffers) {
     next(n, framebuffers);
 
     for (GLsizei i = 0; i < n; ++i) {
@@ -90,7 +90,7 @@ static void glDeleteFramebuffersHook(NEXT(glDeleteFramebuffers) next, GLsizei n,
     }
 }
 
-static void glBindTextureHook(NEXT(glBindTexture) next, GLenum target, GLuint texture) {
+static void HK_glBindTexture(NEXT(glBindTexture) next, GLenum target, GLuint texture) {
     if (FFPE::List::addCommand<CHAIN(glBindTexture)>(target, texture)) return;
     next(target, texture);
 
@@ -98,7 +98,7 @@ static void glBindTextureHook(NEXT(glBindTexture) next, GLenum target, GLuint te
     if (debugEnabled) LOGI("glBindTexture : target=%u texture=%u", target, texture);
 }
 
-static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures) {
+static void HK_glDeleteTextures(NEXT(glDeleteTextures) next, GLsizei n, const GLuint *textures) {
     next(n, textures);
 
     for (GLsizei i = 0; i < n; ++i) {
@@ -106,13 +106,13 @@ static void glDeleteTexturesHook(NEXT(glDeleteTextures) next, GLsizei n, const G
     }
 }
 
-static void glActiveTextureHook(NEXT(glActiveTexture) next, GLuint texture) {
+static void HK_glActiveTexture(NEXT(glActiveTexture) next, GLuint texture) {
     next(texture);
 
     trackedStates->setActiveTextureUnit(texture);
 }
 
-static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buffer) {
+static void HK_glBindBuffer(NEXT(glBindBuffer) next, GLenum target, GLuint buffer) {
     next(target, buffer);
 
     // LOGI("BindBuffer: target %i, buffer %u", target, buffer);
@@ -125,7 +125,7 @@ static void glBindBufferHook(NEXT(glBindBuffer) next, GLenum target, GLuint buff
     }
 }
 
-static void glBindVertexArrayHook(NEXT(glBindVertexArray) next, GLuint array) {
+static void HK_glBindVertexArray(NEXT(glBindVertexArray) next, GLuint array) {
     next(array);
 
     trackedStates->boundVertexArray = array;
@@ -133,7 +133,7 @@ static void glBindVertexArrayHook(NEXT(glBindVertexArray) next, GLuint array) {
     trackedStates->boundBuffers[GL_ELEMENT_ARRAY_BUFFER].buffer = trackedStates->vertexArrayElementBuffers[array];
 }
 
-static void glDeleteVertexArraysHook(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays) {
+static void HK_glDeleteVertexArrays(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays) {
     next(n, arrays);
 
     for (GLsizei i = 0; i < n; ++i) {
@@ -146,20 +146,20 @@ static void glDeleteVertexArraysHook(NEXT(glDeleteVertexArrays) next, GLsizei n,
     }
 }
 
-static void glBufferDataHook(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
+static void HK_glBufferData(NEXT(glBufferData) next, GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
     next(target, size, data, usage);
 
     // LOGI("BufferData: target %i, size %ld, usage %i", target, size, usage);
     trackedStates->boundBuffers[target].size = size;
 }
 
-static void glBindRenderbufferHook(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer) {
+static void HK_glBindRenderbuffer(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer) {
     next(target, renderbuffer);
 
     trackedStates->boundRenderbuffer = renderbuffer;
 }
 
-static void glDeleteRenderbuffersHook(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers) {
+static void HK_glDeleteRenderbuffers(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers) {
     next(n, renderbuffers);
 
     for (GLint i = 0; i < n; ++i) {

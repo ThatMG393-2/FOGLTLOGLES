@@ -137,41 +137,41 @@ namespace {
     }
 }
 
-static void glShaderSourceHook(NEXT(glShaderSource) next, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-static void glCompileShaderHook(NEXT(glCompileShader) next, GLuint shader);
-static void glDeleteShaderHook(NEXT(glDeleteShader) next, GLuint shader);
-static void glAttachShaderHook(NEXT(glAttachShader) next, GLuint program, GLuint shader);
-static void glDetachShaderHook(NEXT(glDetachShader) next, GLuint program, GLuint shader);
-static void glBindAttribLocationHook(NEXT(glBindAttribLocation) next, GLuint program, GLuint index, const GLchar* name);
-static void glTransformFeedbackVaryingsHook(NEXT(glTransformFeedbackVaryings) next, GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode);
-static void glLinkProgramHook(NEXT(glLinkProgram) next, GLuint program);
-static void glUseProgramHook(NEXT(glUseProgram) next, GLuint program);
-static void glDeleteProgramHook(NEXT(glDeleteProgram) next, GLuint program);
+static void HK_glShaderSource(NEXT(glShaderSource) next, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+static void HK_glCompileShader(NEXT(glCompileShader) next, GLuint shader);
+static void HK_glDeleteShader(NEXT(glDeleteShader) next, GLuint shader);
+static void HK_glAttachShader(NEXT(glAttachShader) next, GLuint program, GLuint shader);
+static void HK_glDetachShader(NEXT(glDetachShader) next, GLuint program, GLuint shader);
+static void HK_glBindAttribLocation(NEXT(glBindAttribLocation) next, GLuint program, GLuint index, const GLchar* name);
+static void HK_glTransformFeedbackVaryings(NEXT(glTransformFeedbackVaryings) next, GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode);
+static void HK_glLinkProgram(NEXT(glLinkProgram) next, GLuint program);
+static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program);
+static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program);
 
 void Shader::init() {
     PROVIDE(glShaderSource);
-    HOOK(glShaderSource, glShaderSourceHook);
+    HOOK(glShaderSource);
     PROVIDE(glCompileShader);
-    HOOK(glCompileShader, glCompileShaderHook);
+    HOOK(glCompileShader);
     PROVIDE(glDeleteShader);
-    HOOK(glDeleteShader, glDeleteShaderHook);
+    HOOK(glDeleteShader);
     PROVIDE(glAttachShader);
-    HOOK(glAttachShader, glAttachShaderHook);
+    HOOK(glAttachShader);
     PROVIDE(glDetachShader);
-    HOOK(glDetachShader, glDetachShaderHook);
+    HOOK(glDetachShader);
     PROVIDE(glBindAttribLocation);
-    HOOK(glBindAttribLocation, glBindAttribLocationHook);
+    HOOK(glBindAttribLocation);
     PROVIDE(glTransformFeedbackVaryings);
-    HOOK(glTransformFeedbackVaryings, glTransformFeedbackVaryingsHook);
+    HOOK(glTransformFeedbackVaryings);
     PROVIDE(glLinkProgram);
-    HOOK(glLinkProgram, glLinkProgramHook);
+    HOOK(glLinkProgram);
     PROVIDE(glUseProgram);
-    HOOK(glUseProgram, glUseProgramHook);
+    HOOK(glUseProgram);
     PROVIDE(glDeleteProgram);
-    HOOK(glDeleteProgram, glDeleteProgramHook);
+    HOOK(glDeleteProgram);
 }
 
-static void glShaderSourceHook(NEXT(glShaderSource) next, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) {
+static void HK_glShaderSource(NEXT(glShaderSource) next, GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) {
     std::string source;
     combineSources(count, string, length, source);
 
@@ -221,7 +221,7 @@ static void glShaderSourceHook(NEXT(glShaderSource) next, GLuint shader, GLsizei
     next(shader, 1, &newSource, nullptr);
 }
 
-static void glCompileShaderHook(NEXT(glCompileShader) next, GLuint shader) {
+static void HK_glCompileShader(NEXT(glCompileShader) next, GLuint shader) {
     next(shader);
 
     GLint success = GL_FALSE;
@@ -248,19 +248,19 @@ static void glCompileShaderHook(NEXT(glCompileShader) next, GLuint shader) {
     throw std::runtime_error("Failed to compile shader!");
 }
 
-static void glDeleteShaderHook(NEXT(glDeleteShader) next, GLuint shader) {
+static void HK_glDeleteShader(NEXT(glDeleteShader) next, GLuint shader) {
     next(shader);
     shaderStates.erase(shader);
 }
 
-static void glAttachShaderHook(NEXT(glAttachShader) next, GLuint program, GLuint shader) {
+static void HK_glAttachShader(NEXT(glAttachShader) next, GLuint program, GLuint shader) {
     next(program, shader);
 
     auto it = shaderStates.find(shader);
     programStates[program].shaders.emplace_back(shader, it != shaderStates.end() ? it->second.sourceKey : 0);
 }
 
-static void glDetachShaderHook(NEXT(glDetachShader) next, GLuint program, GLuint shader) {
+static void HK_glDetachShader(NEXT(glDetachShader) next, GLuint program, GLuint shader) {
     next(program, shader);
 
     if (auto it = programStates.find(program); it != programStates.end()) {
@@ -269,7 +269,7 @@ static void glDetachShaderHook(NEXT(glDetachShader) next, GLuint program, GLuint
     }
 }
 
-static void glBindAttribLocationHook(NEXT(glBindAttribLocation) next, GLuint program, GLuint index, const GLchar* name) {
+static void HK_glBindAttribLocation(NEXT(glBindAttribLocation) next, GLuint program, GLuint index, const GLchar* name) {
     next(program, index, name);
 
     auto& attribs = programStates[program].attribs;
@@ -278,7 +278,7 @@ static void glBindAttribLocationHook(NEXT(glBindAttribLocation) next, GLuint pro
     else attribs.emplace_back(index, name);
 }
 
-static void glTransformFeedbackVaryingsHook(NEXT(glTransformFeedbackVaryings) next, GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode) {
+static void HK_glTransformFeedbackVaryings(NEXT(glTransformFeedbackVaryings) next, GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode) {
     next(program, count, varyings, bufferMode);
 
     ProgramState& state = programStates[program];
@@ -286,7 +286,7 @@ static void glTransformFeedbackVaryingsHook(NEXT(glTransformFeedbackVaryings) ne
     state.feedbackVaryings.assign(varyings, varyings + count);
 }
 
-static void glLinkProgramHook(NEXT(glLinkProgram) next, GLuint program) {
+static void HK_glLinkProgram(NEXT(glLinkProgram) next, GLuint program) {
     size_t key = 0;
 
     if (binaryCacheUsable()) {
@@ -313,13 +313,13 @@ static void glLinkProgramHook(NEXT(glLinkProgram) next, GLuint program) {
     if (key) saveProgramBinary(program, key);
 }
 
-static void glUseProgramHook(NEXT(glUseProgram) next, GLuint program) {
+static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program) {
     next(program);
 
     trackedStates->currentlyUsedProgram = program;
 }
 
-static void glDeleteProgramHook(NEXT(glDeleteProgram) next, GLuint program) {
+static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program) {
     next(program);
     programStates.erase(program);
 

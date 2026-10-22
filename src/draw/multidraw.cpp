@@ -4,16 +4,16 @@
 
 #include <GLES2/gl2.h>
 
-void glMultiDrawArrays2(GLenum mode, const GLint* first, const GLsizei* count, GLsizei drawcount);
-void glMultiDrawElements2(GLenum mode, const GLsizei* count, GLenum type, const void* const* indices, GLsizei drawcount);
+void OV_glMultiDrawArrays(GLenum mode, const GLint* first, const GLsizei* count, GLsizei drawcount);
+void OV_glMultiDrawElements(GLenum mode, const GLsizei* count, GLenum type, const void* const* indices, GLsizei drawcount);
 
 void Draw::registerMultiDrawEmulation() {
-    LOGI("Using generic glMultiDrawArrays and glMultiDrawElements implementation.");
-    PROVIDE(glMultiDrawArrays, glMultiDrawArrays2);
-    PROVIDE(glMultiDrawElements, glMultiDrawElements2);
+    // LOGI("Using generic glMultiDrawArrays and glMultiDrawElements implementation.");
+    // OVERRIDE(glMultiDrawArrays);
+    // OVERRIDE(glMultiDrawElements);
 }
 
-void glMultiDrawArrays2(
+void OV_glMultiDrawArrays(
     GLenum mode,
     const GLint* first,
     const GLsizei* count,
@@ -26,7 +26,7 @@ void glMultiDrawArrays2(
     }
 }
 
-void glMultiDrawElements2(
+void OV_glMultiDrawElements(
     GLenum mode,
     const GLsizei* count,
     GLenum type,

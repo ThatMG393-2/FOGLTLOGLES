@@ -39,7 +39,7 @@ inline void eglInit() {
     PROVIDE(eglGetError);
     PROVIDE(eglGetProcAddress);
     PROVIDE(eglInitialize);
-    PROVIDE(eglMakeCurrent, OV_eglMakeCurrent);
+    OVERRIDE(eglMakeCurrent);
     PROVIDE(eglSwapBuffers);
     PROVIDE(eglReleaseThread);
     PROVIDE(eglSwapInterval);

@@ -81,16 +81,10 @@ namespace FOGLTLOGLES {
     }
 }
 
-#define PROVIDE_PICK_(_1, _2, N, ...) N
-#define PROVIDE_1_(f) FOGLTLOGLES::provide(#f, TO_FUNCPTR(f))
-#define PROVIDE_2_(f, t) FOGLTLOGLES::provide(#f, TO_FUNCPTR(t))
-#define PROVIDE(...) PROVIDE_PICK_(__VA_ARGS__, PROVIDE_2_, PROVIDE_1_, _)(__VA_ARGS__)
+#define PROVIDE(f) FOGLTLOGLES::provide(#f, TO_FUNCPTR(f))
+#define OVERRIDE(f) FOGLTLOGLES::provide(#f, TO_FUNCPTR(OV_##f))
 
-#define HOOK(f, fn) FOGLTLOGLES::addHook<&f>(#f, fn)
+#define HOOK(f) FOGLTLOGLES::addHook<&f>(#f, HK_##f)
 #define CALL(f, ...) FOGLTLOGLES::call<&f>(#f, __VA_ARGS__)
 #define NEXT(f) FOGLTLOGLES::Chain<&f>::Next
 #define CHAIN(f) &FOGLTLOGLES::Chain<&f>::dispatch
-
-#ifndef GET_OVFUNC
-#define GET_OVFUNC(type, name) reinterpret_cast<type>(FOGLTLOGLES::getFunctionAddress(#name))
-#endif
