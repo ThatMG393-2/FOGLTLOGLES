@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/enums.hpp"
 #include "ffp/arrays/arrays.hpp"
 #include "ffp/shadergen/shadergen.hpp"
 #include "ffp/vertex/vertex.hpp"

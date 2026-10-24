@@ -34,7 +34,7 @@ typedef uint64_t GLbitfield64;
 
 // shading
 #define GL_FLAT   0x1d00
-#define GL_SMOOTH 0x1d0
+#define GL_SMOOTH 0x1d01
 
 // fog
 #define GL_FOG         0x0B60

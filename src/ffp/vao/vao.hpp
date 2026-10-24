@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/enums.hpp"
 #include "ffp/arrays/arrays.hpp"
 #include "ffp/fog/fog.hpp"
 #include "ffp/shading/shading.hpp"
