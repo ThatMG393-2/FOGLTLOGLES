@@ -1,16 +1,12 @@
-#include "ffp/lists.hpp"
+#include "ffp/ffp.hpp"
 #include "framebuffer/framebuffer.hpp"
 #include "common/limits.hpp"
-#include "texture/proxy.hpp"
-#include "state/state_tracking.hpp"
-#include "texture/swizzling.hpp"
-#include "texture/texture.hpp"
-#include "texture/texparam.hpp"
-#include "core/main.hpp"
-#include "texture/main.hpp"
-#include "fogltlogles.hpp"
 #include "common/log.hpp"
 #include "common/pointers.hpp"
+#include "texture/texture.hpp"
+#include "state/state.hpp"
+#include "core/core.hpp"
+#include "fogltlogles.hpp"
 
 #include <GLES2/gl2.h>
 
@@ -67,7 +63,7 @@ static void HK_glTexImage2D(NEXT(glTexImage2D) next,
         if (debugEnabled) LOGI("glTexImage2D (after): internalformat=%i border=%i format=%i type=%u", internalFormat, border, format, type);
     }
 
-    trackTextureFormat(internalFormat);
+    trackedStates->activeTextureState->trackFormat(GL_TEXTURE_2D, internalFormat);
 }
 
 static void HK_glTexSubImage2D(NEXT(glTexSubImage2D) next,
@@ -155,4 +151,12 @@ static void HK_glTexParameteri(NEXT(glTexParameteri) next, GLenum target, GLenum
 
     // selectProperTexParami(target, pname, param);
     next(target, pname, param);
+}
+
+void Texture::init() {
+    LOGI("Texture entrypoint!");
+
+    Texture::registerTextureOverrides();
+    Texture::registerReadPixelsOverride();
+    Texture::registerQueryOverrides();
 }

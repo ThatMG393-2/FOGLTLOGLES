@@ -1,5 +1,4 @@
-#include "framebuffer/renderbuffer.hpp"
-#include "framebuffer/main.hpp"
+#include "framebuffer/framebuffer.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES2/gl2.h>
@@ -19,6 +18,4 @@ static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next,
 ) {
     fixStorageParams(internalformat);
     next(target, internalformat, width, height);
-
-    trackRenderbufferFormat(internalformat);
 }

@@ -1,8 +1,7 @@
-#include "ffp/lists.hpp"
+#include "ffp/ffp.hpp"
 #include "common/es_utils.hpp"
-#include "ffp/main.hpp"
-#include "fogltlogles.hpp"
 #include "common/log.hpp"
+#include "fogltlogles.hpp"
 
 #include <GLES3/gl32.h>
 

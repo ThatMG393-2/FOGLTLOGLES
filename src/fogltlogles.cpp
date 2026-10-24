@@ -1,18 +1,17 @@
 #include "build_info.hpp"
 #include "fogltlogles.hpp"
-#include "common/limits.hpp"
 #include "common/es_utils.hpp"
-#include "core/main.hpp"
-#include "draw/main.hpp"
-#include "ext/main.hpp"
-#include "ffp/main.hpp"
-#include "framebuffer/main.hpp"
-#include "shader/cache.hpp"
-#include "shader/main.hpp"
-#include "state/main.hpp"
-#include "texture/main.hpp"
-#include "vertex/main.hpp"
+#include "common/limits.hpp"
 #include "common/log.hpp"
+#include "core/core.hpp"
+#include "draw/draw.hpp"
+#include "ext/ext.hpp"
+#include "ffp/ffp.hpp"
+#include "framebuffer/framebuffer.hpp"
+#include "shader/shader.hpp"
+#include "state/state.hpp"
+#include "texture/texture.hpp"
+#include "vertex/vertex.hpp"
 
 #include <GLES3/gl32.h>
 #include <unordered_map>
@@ -68,9 +67,9 @@ void FOGLTLOGLES::init() {
 
     ShaderConverter::Cache::init();
     
+    State::init();
     Core::init();
     FFP::init();
-    State::init();
     Shader::init();
     Texture::init();
     Draw::init();

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <GLES2/gl2.h>
 #include <memory>
+
+void glBufferStorage(GLenum target, GLsizeiptr size, const void* data, GLbitfield flags);
 
 #define GETFUNCEXT(name, suffix) TO_FUNCPTR(real_eglGetProcAddress(#name suffix))
 

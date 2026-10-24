@@ -1,6 +1,6 @@
 #include "common/es_utils.hpp"
-#include "ext/main.hpp"
 #include "common/log.hpp"
+#include "ext/ext.hpp"
 
 #include <GLES3/gl32.h>
 

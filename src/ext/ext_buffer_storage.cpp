@@ -1,8 +1,7 @@
 #include "egl/egl.hpp"
-#include "state/state_tracking.hpp"
+#include "state/state.hpp"
 #include "common/es_utils.hpp"
-#include "ext/main.hpp"
-#include "ext/ext_buffer_storage.hpp"
+#include "ext/ext.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES2/gl2ext.h>

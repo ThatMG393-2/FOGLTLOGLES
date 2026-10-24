@@ -1,6 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <GLES3/gl3.h>
+
+namespace Vertex {
+    void init();
+}
 
 // Unpacks a 32‑bit packed value for GL_UNSIGNED_INT_2_10_10_10_REV or
 // GL_INT_2_10_10_10_REV into 4 floating‐point components.

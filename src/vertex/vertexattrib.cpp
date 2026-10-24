@@ -15,9 +15,8 @@
  * For vector versions, we dereference the pointer and call the scalar version.
 */
 
-#include "vertex/vertexattrib.hpp"
+#include "vertex/vertex.hpp"
 
-#include "vertex/main.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES3/gl3.h>

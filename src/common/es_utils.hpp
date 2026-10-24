@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ffp/enums.hpp"
+#include "common/enums.hpp"
 #include "common/log.hpp"
 #include "common/types.hpp"
 
@@ -16,7 +16,7 @@ inline void initExtensionsES3();
 
 inline std::pair<int, int> version = std::make_pair(0, 0); // major, minor
 inline int shadingVersion; // (major * 100) + (minor * 10)
-    
+
 inline std::unordered_set<std::string> realExtensions;
 inline std::unordered_set<std::string> fakeExtensions;
 
@@ -25,7 +25,7 @@ inline std::tuple<int, int, int> angleVersion = std::make_tuple(0, 0, 0);
 
 inline void init() {
     if (esUtilsInitialized.load()) return;
-        
+
     str versionStr = reinterpret_cast<str>(glGetString(GL_VERSION));
     if (!versionStr) {
         throw std::runtime_error("Failed to get OpenGL ES version! Is the context current or is there no context at all?");
@@ -35,7 +35,7 @@ inline void init() {
     if (sscanf(versionStr, "OpenGL ES %d.%d", &major, &minor) != 2) {
         throw std::runtime_error("Failed to get OpenGL ES version! Is the formatting different? (" + std::string(versionStr) + ")");
     }
-        
+
     version = std::make_pair(major, minor);
     shadingVersion = (major * 100) + (minor * 10); // 3 -> 300, 2 -> 20 = 320 = 3.2
 
@@ -98,7 +98,7 @@ inline GLenum getComponentTypeFromFormat(GLint format) {
         case GL_RGB16F:
         case GL_RGBA16F:
             return GL_FLOAT;
-        
+
         // Integer formats
         case GL_R8I:
         case GL_R16I:
@@ -113,7 +113,7 @@ inline GLenum getComponentTypeFromFormat(GLint format) {
         case GL_RGBA16I:
         case GL_RGBA32I:
             return GL_INT;
-        
+
         // Unsigned integer formats
         case GL_R8UI:
         case GL_R16UI:
@@ -128,7 +128,7 @@ inline GLenum getComponentTypeFromFormat(GLint format) {
         case GL_RGBA16UI:
         case GL_RGBA32UI:
             return GL_UNSIGNED_INT;
-        
+
         // Normalized formats
         case GL_R8:
         case GL_RG8:
@@ -140,20 +140,20 @@ inline GLenum getComponentTypeFromFormat(GLint format) {
         case 0x805b: // GL_RGBA16
         case GL_RGB10_A2:
             return GL_UNSIGNED_NORMALIZED;
-        
+
         // Signed normalized formats
         case GL_R8_SNORM:
         case GL_RG8_SNORM:
         case GL_RGB8_SNORM:
         case GL_RGBA8_SNORM:
             return GL_SIGNED_NORMALIZED;
-        
+
         // Depth formats
         case GL_DEPTH_COMPONENT16:
         case GL_DEPTH_COMPONENT24:
         case GL_DEPTH_COMPONENT32F:
             return GL_FLOAT;
-        
+
         default:
             // Default to unsigned normalized for common formats
             return GL_UNSIGNED_NORMALIZED;
@@ -222,7 +222,7 @@ void typeToPrimitive(GLenum type, const Func&& func) {
         case GL_UNSIGNED_INT:
             func.template operator()<GLPrimitive<GL_UNSIGNED_INT>::type>();
             break;
-        
+
         case GL_SHORT:
             func.template operator()<GLPrimitive<GL_SHORT>::type>();
             break;
@@ -238,7 +238,7 @@ void typeToPrimitive(GLenum type, const Func&& func) {
         case GL_DOUBLE:
             func.template operator()<GLPrimitive<GL_DOUBLE>::type>();
             break;
-            
+
         default:
             LOGE("Unhandled type! (type=%u)", type);
             throw std::runtime_error("typeToPrimitive : Unsupported GL type");

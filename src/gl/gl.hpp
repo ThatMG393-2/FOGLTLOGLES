@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common/types.hpp"
 #include "common/defines.hpp"
+#include "common/types.hpp"
 
 #include <GLES3/gl32.h>
 

@@ -1,4 +1,4 @@
-#include "core/main.hpp"
+#include "core/core.hpp"
 #include "common/log.hpp"
 
 void Core::init() {

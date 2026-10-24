@@ -1,7 +1,5 @@
-#include "ffp/lists.hpp"
-#include "ffp/states.hpp"
-#include "ffp/enums.hpp"
-#include "ffp/main.hpp"
+#include "ffp/ffp.hpp"
+#include "common/enums.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "fogltlogles.hpp"
 

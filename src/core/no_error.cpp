@@ -1,4 +1,4 @@
-#include "core/main.hpp"
+#include "core/core.hpp"
 #include "fogltlogles.hpp"
 #include "common/env.hpp"
 

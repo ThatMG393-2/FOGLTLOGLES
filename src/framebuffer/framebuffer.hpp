@@ -1,16 +1,18 @@
-// Based on:
-// https://github.com/artdeell/LTW/blob/master/ltw/src/main/tinywrapper/framebuffer.c
-
 #pragma once
 
-#include "common/raii_helpers.hpp"
-#include "state/state_tracking.hpp"
-#include "state/texture_tracking.hpp"
+#include "state/state.hpp"
 #include "common/log.hpp"
 
 #include <GLES3/gl32.h>
 #include <memory>
 #include <unordered_map>
+#include <GLES2/gl2.h>
+
+// Based on:
+// https://github.com/artdeell/LTW/blob/master/ltw/src/main/tinywrapper/framebuffer.c
+
+
+
 
 struct FakeDepthFramebuffer;
 
@@ -278,3 +280,18 @@ struct FakeDepthFramebuffer {
         );
     }
 };
+
+namespace FBO {
+    void init();
+
+    void registerRenderbufferWorkaround();
+    void registerFramebufferOverrides();
+}
+
+inline void fixStorageParams(GLenum& internalFormat) {
+    switch (internalFormat) {
+        case GL_DEPTH_COMPONENT:
+            internalFormat = GL_DEPTH_COMPONENT16;
+            break;
+    }
+}

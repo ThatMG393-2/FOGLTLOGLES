@@ -1,8 +1,6 @@
-#include "ffp/lists.hpp"
-#include "ffp/states.hpp"
-#include "state/state_tracking.hpp"
-#include "ffp/enums.hpp"
-#include "ffp/main.hpp"
+#include "ffp/ffp.hpp"
+#include "state/state.hpp"
+#include "common/enums.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES3/gl32.h>

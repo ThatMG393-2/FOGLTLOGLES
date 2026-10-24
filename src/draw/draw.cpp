@@ -1,8 +1,6 @@
-#include "ffp/draw.hpp"
-#include "ffp/lists.hpp"
-#include "draw/draw_overrides.hpp"
-#include "core/main.hpp"
-#include "draw/main.hpp"
+#include "ffp/ffp.hpp"
+#include "draw/draw.hpp"
+#include "core/core.hpp"
 #include "fogltlogles.hpp"
 #include "common/log.hpp"
 
@@ -26,4 +24,13 @@ void OV_glDrawArrays(GLenum mode, GLint first, GLsizei count) {
         default:
             FFPE::Rendering::Arrays::drawArrays(mode, first, count);
     }
+}
+
+void Draw::init() {
+    LOGI("Draw entrypoint!");
+
+    Draw::registerDrawOverride();
+    Draw::registerMultiDrawEmulation();
+    Draw::registerBatchedMultiDraw();
+    Draw::registerBaseVertexFunction();
 }

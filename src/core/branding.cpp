@@ -1,12 +1,11 @@
 #include "build_info.hpp"
-#include "ffp/lists.hpp"
-#include "ffp/states.hpp"
-#include "state/state_tracking.hpp"
+#include "ffp/ffp.hpp"
+#include "state/state.hpp"
+#include "common/enums.hpp"
 #include "common/es_utils.hpp"
-#include "ffp/enums.hpp"
-#include "core/main.hpp"
-#include "fogltlogles.hpp"
 #include "common/strings.hpp"
+#include "core/core.hpp"
+#include "fogltlogles.hpp"
 
 #include <GLES3/gl32.h>
 #include <string>
@@ -115,7 +114,6 @@ static const GLubyte* HK_glGetStringi(NEXT(glGetStringi) next, GLenum pname, int
 }
 
 static void HK_glEnable(NEXT(glEnable) next, GLenum cap) {
-    if (FFPE::List::addCommand<CHAIN(glEnable)>(cap)) return;
     switch (cap) {
         case GL_ALPHA_TEST:
         case GL_TEXTURE_2D:
@@ -135,12 +133,9 @@ static void HK_glEnable(NEXT(glEnable) next, GLenum cap) {
             next(cap);
             break;
     }
-    
-    trackedStates->capabilitiesState[cap] = true;
 }
 
 static void HK_glDisable(NEXT(glDisable) next, GLenum cap) {
-    if (FFPE::List::addCommand<CHAIN(glDisable)>(cap)) return;
     switch (cap) {
         case GL_ALPHA_TEST:
         case GL_TEXTURE_2D:
@@ -155,7 +150,5 @@ static void HK_glDisable(NEXT(glDisable) next, GLenum cap) {
             next(cap);
             break;
     }
-
-    trackedStates->capabilitiesState[cap] = false;
 }
 

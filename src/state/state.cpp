@@ -1,11 +1,6 @@
-#include "ffp/lists.hpp"
-#include "state/state_tracking.hpp"
-#include "core/main.hpp"
-#include "state/buffer_tracking.hpp"
-#include "state/framebuffer_tracking.hpp"
-#include "state/main.hpp"
-#include "state/texture_tracking.hpp"
-#include "state/renderbuffer_tracking.hpp"
+#include "ffp/ffp.hpp"
+#include "state/state.hpp"
+#include "core/core.hpp"
 #include "fogltlogles.hpp"
 #include "common/log.hpp"
 
@@ -25,8 +20,20 @@ static void HK_glBindVertexArray(NEXT(glBindVertexArray) next, GLuint array);
 static void HK_glDeleteVertexArrays(NEXT(glDeleteVertexArrays) next, GLsizei n, const GLuint* arrays);
 static void HK_glBindRenderbuffer(NEXT(glBindRenderbuffer) next, GLenum target, GLuint renderbuffer);
 static void HK_glDeleteRenderbuffers(NEXT(glDeleteRenderbuffers) next, GLsizei n, const GLuint *renderbuffers);
+static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+static void HK_glEnable(NEXT(glEnable) next, GLenum cap);
+static void HK_glDisable(NEXT(glDisable) next, GLenum cap);
+static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program);
+static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program);
 
 void State::init() {
+    // registered first so these see every call, before any module swallows it
+    HOOK(glEnable);
+    HOOK(glDisable);
+    HOOK(glUseProgram);
+    HOOK(glDeleteProgram);
+    HOOK(glRenderbufferStorage);
+
     PROVIDE(glBindFramebuffer);
     HOOK(glBindFramebuffer);
     PROVIDE(glGenFramebuffers);
@@ -164,5 +171,39 @@ static void HK_glDeleteRenderbuffers(NEXT(glDeleteRenderbuffers) next, GLsizei n
 
     for (GLint i = 0; i < n; ++i) {
         trackedStates->renderbufferInternalFormats.erase(renderbuffers[i]);
+    }
+}
+
+static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+    next(target, internalformat, width, height);
+
+    trackedStates->renderbufferInternalFormats.insert({ trackedStates->boundRenderbuffer, internalformat });
+}
+
+static void HK_glEnable(NEXT(glEnable) next, GLenum cap) {
+    if (FFPE::List::addCommand<CHAIN(glEnable)>(cap)) return;
+    next(cap);
+
+    trackedStates->capabilitiesState[cap] = true;
+}
+
+static void HK_glDisable(NEXT(glDisable) next, GLenum cap) {
+    if (FFPE::List::addCommand<CHAIN(glDisable)>(cap)) return;
+    next(cap);
+
+    trackedStates->capabilitiesState[cap] = false;
+}
+
+static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program) {
+    next(program);
+
+    trackedStates->currentlyUsedProgram = program;
+}
+
+static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program) {
+    next(program);
+
+    if (trackedStates->currentlyUsedProgram == program) {
+        trackedStates->currentlyUsedProgram = 0;
     }
 }

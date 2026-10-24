@@ -1,6 +1,5 @@
 #include "framebuffer/framebuffer.hpp"
-#include "texture/main.hpp"
-#include "texture/readpixels.hpp"
+#include "texture/texture.hpp"
 #include "fogltlogles.hpp"
 
 static void HK_glReadPixels(NEXT(glReadPixels) next, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);

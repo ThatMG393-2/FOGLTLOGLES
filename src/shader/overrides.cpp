@@ -1,9 +1,5 @@
-#include "state/state_tracking.hpp"
-#include "shader/cache.hpp"
-#include "shader/converter.hpp"
-#include "shader/utils.hpp"
-#include "shader/main.hpp"
-#include "shader/overrides.hpp"
+#include "state/state.hpp"
+#include "shader/shader.hpp"
 #include "fogltlogles.hpp"
 #include "common/env.hpp"
 #include "common/fast_map.hpp"
@@ -145,7 +141,6 @@ static void HK_glDetachShader(NEXT(glDetachShader) next, GLuint program, GLuint 
 static void HK_glBindAttribLocation(NEXT(glBindAttribLocation) next, GLuint program, GLuint index, const GLchar* name);
 static void HK_glTransformFeedbackVaryings(NEXT(glTransformFeedbackVaryings) next, GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode);
 static void HK_glLinkProgram(NEXT(glLinkProgram) next, GLuint program);
-static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program);
 static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program);
 
 void Shader::init() {
@@ -166,7 +161,6 @@ void Shader::init() {
     PROVIDE(glLinkProgram);
     HOOK(glLinkProgram);
     PROVIDE(glUseProgram);
-    HOOK(glUseProgram);
     PROVIDE(glDeleteProgram);
     HOOK(glDeleteProgram);
 }
@@ -313,17 +307,7 @@ static void HK_glLinkProgram(NEXT(glLinkProgram) next, GLuint program) {
     if (key) saveProgramBinary(program, key);
 }
 
-static void HK_glUseProgram(NEXT(glUseProgram) next, GLuint program) {
-    next(program);
-
-    trackedStates->currentlyUsedProgram = program;
-}
-
 static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program) {
     next(program);
     programStates.erase(program);
-
-    if (trackedStates->currentlyUsedProgram == program) {
-        trackedStates->currentlyUsedProgram = 0;
-    }
 }

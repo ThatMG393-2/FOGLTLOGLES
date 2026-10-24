@@ -1,4 +1,4 @@
-#include "ffp/main.hpp"
+#include "ffp/ffp.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES3/gl32.h>

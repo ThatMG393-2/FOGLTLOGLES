@@ -1,6 +1,6 @@
 #include "egl/egl.hpp"
 #include "common/es_utils.hpp"
-#include "ext/main.hpp"
+#include "ext/ext.hpp"
 #include "fogltlogles.hpp"
 
 void Ext::register_EXT_blend_func_extended() {

@@ -1,9 +1,6 @@
 #include "framebuffer/framebuffer.hpp"
-#include "texture/proxy.hpp"
-#include "state/state_tracking.hpp"
-#include "state/framebuffer_tracking.hpp"
-#include "texture/readpixels.hpp"
-#include "texture/main.hpp"
+#include "texture/texture.hpp"
+#include "state/state.hpp"
 #include "fogltlogles.hpp"
 #include "common/log.hpp"
 

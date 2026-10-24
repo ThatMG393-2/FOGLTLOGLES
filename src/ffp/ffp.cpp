@@ -1,4 +1,4 @@
-#include "ffp/main.hpp"
+#include "ffp/ffp.hpp"
 #include "common/log.hpp"
 
 void FFP::init() {

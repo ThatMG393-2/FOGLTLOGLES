@@ -1,7 +1,4 @@
-#include "ffp/lists.hpp"
-#include "ffp/states.hpp"
-#include "ffp/immediate.hpp"
-#include "ffp/main.hpp"
+#include "ffp/ffp.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "fogltlogles.hpp"
 

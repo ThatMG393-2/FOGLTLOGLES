@@ -2,9 +2,9 @@
 // https://github.com/artdeell/LTW/blob/master/ltw/src/main/tinywrapper/framebuffer.c
 
 #include "framebuffer/framebuffer.hpp"
-#include "state/state_tracking.hpp"
+#include "state/state.hpp"
 #include "common/es_utils.hpp"
-#include "framebuffer/main.hpp"
+#include "common/log.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES3/gl3.h>
@@ -200,4 +200,11 @@ GLenum OV_glCheckFramebufferStatus(GLenum target) {
     }
 
     return framebufferStatus; */
+}
+
+void FBO::init() {
+    LOGI("Framebuffer entrypoint!");
+
+    FBO::registerRenderbufferWorkaround();
+    FBO::registerFramebufferOverrides();
 }

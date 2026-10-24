@@ -1,6 +1,6 @@
 #include "egl/egl.hpp"
 #include "common/es_utils.hpp"
-#include "ext/main.hpp"
+#include "ext/ext.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES2/gl2.h>
