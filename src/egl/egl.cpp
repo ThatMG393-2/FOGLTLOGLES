@@ -19,7 +19,7 @@ FunctionPtr eglGetProcAddress(str procname) {
 
 EGLBoolean OV_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx) {
     EGLBoolean result = eglMakeCurrent(dpy, draw, read, ctx);
-    std::call_once(rendererInitFlag, FOGLTLOGLES::init);
+    if (result == EGL_TRUE && ctx != EGL_NO_CONTEXT) std::call_once(rendererInitFlag, FOGLTLOGLES::init);
     return result;
 }
 
