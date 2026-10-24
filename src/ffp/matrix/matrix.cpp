@@ -1,4 +1,5 @@
-#include "ffp/ffp.hpp"
+#include "ffp/matrix/matrix.hpp"
+#include "ffp/list/list.hpp"
 #include "common/enums.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"

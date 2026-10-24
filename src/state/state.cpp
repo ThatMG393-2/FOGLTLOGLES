@@ -1,4 +1,5 @@
-#include "ffp/ffp.hpp"
+#include "ffp/list/list.hpp"
+#include "ffp/manager/manager.hpp"
 #include "state/state.hpp"
 #include "core/core.hpp"
 #include "fogltlogles.hpp"

@@ -1,4 +1,5 @@
-#include "ffp/ffp.hpp"
+#include "ffp/fog/fog.hpp"
+#include "ffp/list/list.hpp"
 #include "common/enums.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "fogltlogles.hpp"

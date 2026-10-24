@@ -1,4 +1,8 @@
-#include "ffp/ffp.hpp"
+#include "ffp/arrays/arrays.hpp"
+#include "ffp/list/list.hpp"
+#include "ffp/manager/manager.hpp"
+#include "ffp/shadergen/shadergen.hpp"
+#include "ffp/vao/vao.hpp"
 #include "common/enums.hpp"
 #include "common/es_utils.hpp"
 #include "fogltlogles.hpp"
@@ -18,8 +22,6 @@ void FFP::registerArrayFunctions() {
 }
 
 void glVertexPointer(GLint size, GLenum type, GLsizei stride, const void* pointer) {
-    // LOGI("glVertexPointer : size=%i mode=%u stride=%i start=%p", size, type, stride, pointer);
-    
     auto* vertex = FFPE::States::ClientState::Arrays::getArray(GL_VERTEX_ARRAY);
     if (vertex->parameters.size != size) FFPE::States::Manager::invalidateCurrentState();
     
@@ -31,8 +33,6 @@ void glVertexPointer(GLint size, GLenum type, GLsizei stride, const void* pointe
 }
 
 void glColorPointer(GLint size, GLenum type, GLsizei stride, const void* pointer) {
-    // LOGI("glColorPointer : size=%i mode=%u stride=%i start=%p", size, type, stride, pointer);
-    
     auto* color = FFPE::States::ClientState::Arrays::getArray(GL_COLOR_ARRAY);
     if (color->parameters.size != size) FFPE::States::Manager::invalidateCurrentState();
     
@@ -44,8 +44,6 @@ void glColorPointer(GLint size, GLenum type, GLsizei stride, const void* pointer
 }
 
 void glNormalPointer(GLint size, GLenum type, GLsizei stride, const void* pointer) {
-    // LOGI("glNormalPointer : size=%i mode=%u stride=%i start=%p", size, type, stride, pointer);
-    
     auto* normal = FFPE::States::ClientState::Arrays::getArray(GL_NORMAL_ARRAY);
     if (normal->parameters.size != size) FFPE::States::Manager::invalidateCurrentState();
 
@@ -57,8 +55,6 @@ void glNormalPointer(GLint size, GLenum type, GLsizei stride, const void* pointe
 }
 
 void glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const void* pointer) {
-    // LOGI("glTexCoordPointer : size=%i mode=%u stride=%i start=%p", size, type, stride, pointer);
-
     auto* texCoord = FFPE::States::ClientState::Arrays::getTexCoordArray(GL_TEXTURE0);
     if (texCoord->parameters.size != size) FFPE::States::Manager::invalidateCurrentState();
     
@@ -99,3 +95,9 @@ void glDisableClientState(GLenum array) {
     }
 }
 
+
+void FFPE::Rendering::Arrays::init() {
+    Quads::init();
+    Rendering::VAO::init();
+    Rendering::ShaderGen::initFeatures();
+}

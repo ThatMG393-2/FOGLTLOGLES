@@ -1,4 +1,6 @@
-#include "ffp/ffp.hpp"
+#include "ffp/vertex/vertex.hpp"
+#include "ffp/immediate/immediate.hpp"
+#include "ffp/list/list.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "fogltlogles.hpp"
 

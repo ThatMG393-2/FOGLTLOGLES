@@ -1,4 +1,6 @@
-#include "ffp/ffp.hpp"
+#include "ffp/alphatest/alphatest.hpp"
+#include "ffp/list/list.hpp"
+#include "ffp/manager/manager.hpp"
 #include "state/state.hpp"
 #include "common/enums.hpp"
 #include "fogltlogles.hpp"
