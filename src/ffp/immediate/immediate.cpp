@@ -81,6 +81,8 @@ void endInternal(
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+    const auto* base = reinterpret_cast<const char*>(vertices.data());
+
     glVertexPointer(
         decltype(VertexData::position)::length(),
         ESUtils::TypeTraits::GLTypeEnum<
@@ -98,7 +100,7 @@ void endInternal(
                 VertexData::color
             )::value_type
         >::value,
-        sizeof(VertexData), vertices.data() + offsetof(VertexData, color)
+        sizeof(VertexData), base + offsetof(VertexData, color)
     );
 
     glNormalPointer(
@@ -108,7 +110,7 @@ void endInternal(
                 VertexData::normal
             )::value_type
         >::value,
-        sizeof(VertexData), vertices.data() + offsetof(VertexData, normal)
+        sizeof(VertexData), base + offsetof(VertexData, normal)
     );
 
     glTexCoordPointer(
@@ -118,7 +120,7 @@ void endInternal(
                 VertexData::texCoord
             )::value_type
         >::value,
-        sizeof(VertexData), vertices.data() + offsetof(VertexData, texCoord)
+        sizeof(VertexData), base + offsetof(VertexData, texCoord)
     );
 
     FFPE::List::ignoreNextCall();

@@ -1,6 +1,4 @@
 #include "ffp/list/list.hpp"
-#include "common/es_utils.hpp"
-#include "common/log.hpp"
 #include "fogltlogles.hpp"
 
 #include <GLES3/gl32.h>
@@ -52,17 +50,13 @@ void glCallList(GLuint list) {
 }
 
 void glCallLists(GLsizei n, GLenum type, const void* lists) {
-    ESUtils::TypeTraits::typeToPrimitive(type, [&]<typename T>() {
-        FFPE::List::callDisplayLists(
-            n, ESUtils::TypeTraits::asTypedArray<T>(lists)
-        );
-    });
+    FFPE::List::callDisplayLists(n, type, lists);
 }
 
 void glListBase(GLuint base) {
-    LOGI("glListBase: %u", base);
+    FFPE::List::setListBase(base);
 }
 
 GLboolean glIsList(GLuint list) {
-    return FFPE::List::isList(list);
+    return FFPE::List::queryIsList(list) ? GL_TRUE : GL_FALSE;
 }

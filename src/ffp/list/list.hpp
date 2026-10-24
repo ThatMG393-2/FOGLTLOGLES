@@ -1,11 +1,13 @@
 #pragma once
 
+#include "common/enums.hpp"
 #include "common/fast_map.hpp"
 #include "state/state.hpp"
 
 #include <GLES3/gl32.h>
 #include <concepts>
 #include <functional>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -34,33 +36,25 @@ constexpr std::string getTypeNameFromTemplate() {
 
 namespace FFPE::List {
 
+inline constexpr GLsizei MAX_NESTING = 64;
+
 struct Command {
-    const std::string name;
-    const std::function<void()> func;
+    std::string name;
+    std::function<void()> func;
 
     void operator() () const {
         this->func();
     }
 };
 
-// TODO: an optimize function
 class DisplayList {
 private:
     std::vector<Command> commands;
 
-    GLenum mode = GL_NONE;
-
 public:
-    DisplayList() { }
-    DisplayList(GLenum mode) : mode(mode) { }
-
     template<typename... Args>
     void addCommand(Args&&... args) {
         commands.emplace_back(std::forward<Args>(args)...);
-    }
-
-    void setMode(GLenum mode) {
-        this->mode = mode;
     }
 
     void execute() const {
@@ -68,22 +62,20 @@ public:
             command();
         }
     }
-
-    GLenum getMode() const {
-        return mode;
-    }
 };
 
 namespace States {
-    inline GLuint nextListIndex = 1;
-    inline bool executingDisplayList;
+    inline FastMapBI<GLuint, std::shared_ptr<const DisplayList>> displayLists;
+
+    inline GLuint listBase = 0;
+
+    inline GLuint recordingIndex = 0;
+    inline GLenum recordingMode = GL_NONE;
+    inline DisplayList recordingList;
+
+    inline GLsizei executionDepth = 0;
 
     inline bool ignoreNextCallFlag;
-
-    inline FastMapBI<GLuint, DisplayList> displayLists;
-
-    inline GLuint activeDisplayListIndex;
-    inline DisplayList activeDisplayList;
 }
 
 inline bool isList(GLuint list) {
@@ -91,18 +83,23 @@ inline bool isList(GLuint list) {
 }
 
 inline bool isRecording() {
-    return States::activeDisplayListIndex != 0;
+    return States::recordingIndex != 0;
 }
 
 inline bool isExecuting() {
-    return States::executingDisplayList;
+    return States::executionDepth > 0;
 }
 
+void raiseError(GLenum error);
+
 GLuint genDisplayLists(GLsizei range);
+void deleteDisplayLists(GLuint list, GLsizei range);
 void startDisplayList(GLuint list, GLenum mode);
 void endDisplayList();
-void deleteDisplayLists(GLuint list, GLsizei range);
 void callDisplayList(GLuint list);
+void callDisplayLists(GLsizei n, GLenum type, const void* lists);
+void setListBase(GLuint base);
+bool queryIsList(GLuint list);
 void ignoreNextCall();
 
 template<auto F, typename... Args>
@@ -114,28 +111,14 @@ inline bool addCommand(Args&&... args) {
         return false;
     }
 
-    using DecayedF = std::decay_t<decltype(F)>;
-
-    States::activeDisplayList.addCommand(
+    States::recordingList.addCommand(
         getTypeNameFromTemplate<F>(),
         [a = std::make_tuple(args...)]() mutable {
-            std::apply(DecayedF { }, std::move(a));
+            std::apply(F, std::move(a));
         }
     );
 
-    return !(States::activeDisplayList.getMode() == GL_COMPILE_AND_EXECUTE);
-}
-
-template<typename T>
-inline void callDisplayLists(GLsizei n, const T* lists) {
-    States::executingDisplayList = true;
-    for (GLsizei i = 0; i < n; ++i) {
-        if (!isList(i)) continue;
-        GLDebugGroup gldg("List replay : " + std::to_string(lists[i]));
-
-        States::displayLists[static_cast<GLuint>(lists[i])].execute();
-    }
-    States::executingDisplayList = false;
+    return States::recordingMode == GL_COMPILE;
 }
 
 }
