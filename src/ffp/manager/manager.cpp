@@ -14,6 +14,8 @@ namespace {
     union StateRepresentation {
         struct Fields {
             GLuint64 alphaOp : 4; // 0-7 (8 possible values)
+            GLuint64 alphaTestEnabled : 1; // 0-1 (2 possible values)
+            GLuint64 texture2DEnabled : 1; // 0-1 (2 possible values)
             GLuint64 shadeType : 1; // 0-1 (2 possible values)
 
             GLuint64 vertexArrayEnabled : 1; // 0-1 (2 possible values)
@@ -28,7 +30,7 @@ namespace {
             GLuint64 texCoordArrayEnabled : 1; // 0-1 (2 possible values)
             GLuint64 texCoordArrayComponentSize : 2; // 0-3 (4 possible values)
 
-            GLuint fogEnabled : 1; // 0-1 (2 possible values)
+            GLuint64 fogEnabled : 1; // 0-1 (2 possible values)
             GLuint64 fogMode : 2; // 0-3 (4 possible values)
         } fields;
         GLbitfield64 value;
@@ -41,6 +43,8 @@ GLbitfield64 getOrBuildState() {
     StateRepresentation result { };
 
     result.fields.alphaOp = AlphaTest::op - GL_NEVER;
+    result.fields.alphaTestEnabled = trackedStates->isCapabilityEnabled(GL_ALPHA_TEST);
+    result.fields.texture2DEnabled = trackedStates->textureUnits[GL_TEXTURE0].texture2DEnabled;
     result.fields.shadeType = ShadeModel::type - GL_FLAT;
 
     auto* vertex = ClientState::Arrays::getArray(GL_VERTEX_ARRAY);

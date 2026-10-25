@@ -28,48 +28,48 @@ bool isEnabled() const override { return trackedStates->isCapabilityEnabled(GL_A
 void buildFS(
     std::stringstream& finalInputs,
     [[maybe_unused]] std::stringstream& finalOutputs,
-    std::stringstream& finalOperations,
-    [[maybe_unused]] std::stringstream& finalOutputOperations
+    [[maybe_unused]] std::stringstream& finalOperations,
+    std::stringstream& finalOutputOperations
 ) const override {
     finalInputs << uniforms << Common::Whitespaces::DOUBLE_NEWLINE;
 
     std::string operation;
     switch (States::AlphaTest::op) {
         case GL_LESS:
-            operation = "<";
-        break;
-
-        case GL_EQUAL:
-            operation = "==";
-        break;
-
-        case GL_LEQUAL:
-            operation = "<=";
-        break;
-
-        case GL_GREATER:
-            operation = ">";
-        break;
-
-        case GL_NOTEQUAL:
-            operation = "!=";
-        break;
-
-        case GL_GEQUAL:
             operation = ">=";
         break;
 
-        case GL_NEVER: finalOperations << "discard;"; return;
+        case GL_EQUAL:
+            operation = "!=";
+        break;
+
+        case GL_LEQUAL:
+            operation = ">";
+        break;
+
+        case GL_GREATER:
+            operation = "<=";
+        break;
+
+        case GL_NOTEQUAL:
+            operation = "==";
+        break;
+
+        case GL_GEQUAL:
+            operation = "<";
+        break;
+
+        case GL_NEVER: finalOutputOperations << "discard;" << Common::Whitespaces::DOUBLE_NEWLINE_TAB; return;
         case GL_ALWAYS: return;
     }
 
     fmt::print(
-        finalOperations,
+        finalOutputOperations,
         baseOperation,
         operation
     );
 
-    finalOperations << Common::Whitespaces::DOUBLE_NEWLINE_TAB;
+    finalOutputOperations << Common::Whitespaces::DOUBLE_NEWLINE_TAB;
 }
 
 void sendData(GLuint program) const override {

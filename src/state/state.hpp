@@ -29,6 +29,7 @@ struct Buffer;
 
 struct TextureStates {
     std::pair<GLenum, GLuint> recentlyBoundTexture;
+    bool texture2DEnabled = false;
 
     // Type, Texture
     FAST_MAP_BI(GLenum, GLuint) boundTextures;

@@ -58,7 +58,7 @@ void main() {{
     // feature operations
     {}
 
-    color *= texture(tex0, vertexTexCoord.xy);
+    {}
 
     // feature output operations
     {}
@@ -92,9 +92,13 @@ std::string buildFragmentShader() {
         if (feature->isEnabled()) feature->buildFS(inputs, outputs, operations, outputOperations);
     }
 
+    const bool texture2DEnabled = trackedStates->textureUnits[GL_TEXTURE0].texture2DEnabled;
+
     return fmt::format(
         Common::FS_TEMPLATE,
-        inputs.str(), outputs.str(), operations.str(), outputOperations.str()
+        inputs.str(), outputs.str(), operations.str(),
+        texture2DEnabled ? "color *= texture(tex0, vertexTexCoord.xy);" : "",
+        outputOperations.str()
     );
 }
 

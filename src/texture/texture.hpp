@@ -81,7 +81,7 @@ inline const std::unordered_map<SwizzleOperation, std::array<GLint, 4>> swizzleA
 // here to avoid recreating a new vector for each swizzles
 // do not forget to resize this to match the
 // number of swizzle operations
-inline std::vector<SwizzleOperation> currentSwizzleOperations(2);
+inline std::vector<SwizzleOperation> currentSwizzleOperations;
 
 // hardcoded to 4 channels only
 // avoid recreations!
@@ -162,9 +162,12 @@ inline void swizzleBGRA(GLenum& type) {
         case 0x8035: // GL_UNSIGNED_INT_8_8_8_8
             currentSwizzleOperations.emplace_back(ENDIANNESS_SWAP);
             currentSwizzleOperations.emplace_back(BGRA2RGBA);
-        
-            // fall through
+            type = GL_UNSIGNED_BYTE;
+            break;
+
         case 0x8367: // GL_UNSIGNED_INT_8_8_8_8_REV
+        case GL_UNSIGNED_BYTE:
+            currentSwizzleOperations.emplace_back(BGRA2RGBA);
             type = GL_UNSIGNED_BYTE;
             break;
 
@@ -180,6 +183,9 @@ inline void fixTexArguments(
     GLenum& format,
     bool isShadowMap
 ) {
+    const bool wasBGRA = (format == 0x80e1); // GL_BGRA
+    const GLenum sourceType = type;
+
     // Workarounds
     // https://github.com/artdeell/LTW/blob/0a0567659fe4e2ade04313061ac8c9aaa5240e53/ltw/src/main/tinywrapper/glformats.c#L77
     switch (internalFormat) {
@@ -457,28 +463,24 @@ inline void fixTexArguments(
     }
 
     // Finally, apply BGRA swizzling adjustments.
-    switch (internalFormat) {
-        case GL_R8: {
-            if (format == 0x80e1) { // GL_BGRA
+    if (wasBGRA) {
+        switch (internalFormat) {
+            case GL_R8:
                 format = GL_RED;
+                type = sourceType;
                 swizzleBGRA(type);
-            }
-            break;
-        }
-        case GL_RG8: {
-            if (format == 0x80e1) { // GL_BGRA
+                break;
+            case GL_RG8:
                 format = GL_RG;
+                type = sourceType;
                 swizzleBGRA(type);
-            }
-            break;
-        }
-        case GL_RGBA:
-        case GL_RGBA8: {
-            if (format == 0x80e1) { // GL_BGRA
+                break;
+            case GL_RGBA:
+            case GL_RGBA8:
                 format = GL_RGBA;
+                type = sourceType;
                 swizzleBGRA(type);
-            }
-            break;
+                break;
         }
     }
 

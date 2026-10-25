@@ -173,6 +173,7 @@ static void HK_glEnable(NEXT(glEnable) next, GLenum cap) {
     if (FFPE::List::addCommand<CHAIN(glEnable)>(cap)) return;
     next(cap);
 
+    if (cap == GL_TEXTURE_2D) trackedStates->activeTextureState->texture2DEnabled = true;
     trackedStates->capabilitiesState[cap] = true;
 }
 
@@ -180,6 +181,7 @@ static void HK_glDisable(NEXT(glDisable) next, GLenum cap) {
     if (FFPE::List::addCommand<CHAIN(glDisable)>(cap)) return;
     next(cap);
 
+    if (cap == GL_TEXTURE_2D) trackedStates->activeTextureState->texture2DEnabled = false;
     trackedStates->capabilitiesState[cap] = false;
 }
 
