@@ -26,29 +26,40 @@ namespace Shaders {
 // consider caching the shader binaries itself
 // caveat: os 😭
 
-inline FastMapBI<GLbitfield64, std::string> lazyCachedSources;
+inline constexpr uint64_t SHADERGEN_REVISION = 3;
+
+inline FastMapBI<uint64_t, std::string> lazyCachedSources;
+
+inline uint64_t lazyKey(GLbitfield64 state, shaderc_shader_kind kind) {
+    return (uint64_t(state) << 2) | uint64_t(kind);
+}
 
 inline size_t tagHash(GLbitfield64 state, shaderc_shader_kind kind) {
+    const size_t hash = ShaderConverter::Cache::getHash(
+        ShaderConverter::Cache::hashCombine(state, SHADERGEN_REVISION)
+    );
+    if (!hash) return 0;
+
 #if INTPTR_MAX == INT64_MAX
-    return (ShaderConverter::Cache::getHash(state) & 0x3FFFFFFFFFFFFFFF) | (uint64_t(kind) << 62);
+    return (hash & 0x3FFFFFFFFFFFFFFF) | (uint64_t(kind) << 62);
 #else
-    return (ShaderConverter::Cache::getHash(state) & 0x3FFFFFFF) | (kind << 30);
+    return (hash & 0x3FFFFFFF) | (kind << 30);
 #endif
 }
 
 inline void putToCache(GLbitfield64 state, shaderc_shader_kind kind, std::string& source) {
-    lazyCachedSources[tagHash(state, kind)] = source;
+    lazyCachedSources[lazyKey(state, kind)] = source;
     ShaderConverter::Cache::putShaderInCache(
         tagHash(state, kind), source
     );
 }
 
 inline std::string getFromCache(GLbitfield64 state, shaderc_shader_kind kind) {
-    auto cachedSource = lazyCachedSources.find(tagHash(state, kind));
+    auto cachedSource = lazyCachedSources.find(lazyKey(state, kind));
     if (cachedSource != lazyCachedSources.end()) return cachedSource->second;
 
     std::string source = ShaderConverter::Cache::getCachedShaderSource(tagHash(state, kind));
-    if (!source.empty()) lazyCachedSources[tagHash(state, kind)] = source;
+    if (!source.empty()) lazyCachedSources[lazyKey(state, kind)] = source;
 
     return source;
 }
