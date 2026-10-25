@@ -36,7 +36,7 @@ STUB_FUNC(glMaterialf, (GLenum face, GLenum pname, GLfloat param))
 STUB_FUNC(glMaterialfv, (GLenum face, GLenum pname, const GLfloat *params))
 STUB_FUNC(glMultiTexCoord1f, (GLenum target, GLfloat s))
 STUB_FUNC(glMultiTexCoord1fv, (GLenum target, const GLfloat *v))
-STUB_FUNC(glMultiTexCoord2f, (GLenum target, GLfloat s, GLfloat t))
+// STUB_FUNC(glMultiTexCoord2f, (GLenum target, GLfloat s, GLfloat t))
 STUB_FUNC(glMultiTexCoord2fv, (GLenum target, const GLfloat *v))
 STUB_FUNC(glMultiTexCoord3f, (GLenum target, GLfloat s, GLfloat t, GLfloat r))
 STUB_FUNC(glMultiTexCoord3fv, (GLenum target, const GLfloat *v))
@@ -194,7 +194,7 @@ void FFP::registerStubFunctions() {
     PROVIDE(glMaterialfv);
     PROVIDE(glMultiTexCoord1f);
     PROVIDE(glMultiTexCoord1fv);
-    PROVIDE(glMultiTexCoord2f);
+    // PROVIDE(glMultiTexCoord2f);
     PROVIDE(glMultiTexCoord2fv);
     PROVIDE(glMultiTexCoord3f);
     PROVIDE(glMultiTexCoord3fv);
