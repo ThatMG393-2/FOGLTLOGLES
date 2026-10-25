@@ -38,15 +38,10 @@ void Core::registerBrandingOverride() {
         glGetString(GL_RENDERER)
     );
 
-    PROVIDE(glGetString);
     HOOK(glGetString);
-    PROVIDE(glGetIntegerv);
     HOOK(glGetIntegerv);
-    PROVIDE(glGetStringi);
     HOOK(glGetStringi);
-    PROVIDE(glEnable);
     HOOK(glEnable);
-    PROVIDE(glDisable);
     HOOK(glDisable);
 }
 

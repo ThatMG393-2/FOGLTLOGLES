@@ -144,24 +144,14 @@ static void HK_glLinkProgram(NEXT(glLinkProgram) next, GLuint program);
 static void HK_glDeleteProgram(NEXT(glDeleteProgram) next, GLuint program);
 
 void Shader::init() {
-    PROVIDE(glShaderSource);
     HOOK(glShaderSource);
-    PROVIDE(glCompileShader);
     HOOK(glCompileShader);
-    PROVIDE(glDeleteShader);
     HOOK(glDeleteShader);
-    PROVIDE(glAttachShader);
     HOOK(glAttachShader);
-    PROVIDE(glDetachShader);
     HOOK(glDetachShader);
-    PROVIDE(glBindAttribLocation);
     HOOK(glBindAttribLocation);
-    PROVIDE(glTransformFeedbackVaryings);
     HOOK(glTransformFeedbackVaryings);
-    PROVIDE(glLinkProgram);
     HOOK(glLinkProgram);
-    PROVIDE(glUseProgram);
-    PROVIDE(glDeleteProgram);
     HOOK(glDeleteProgram);
 }
 

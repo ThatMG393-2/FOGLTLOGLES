@@ -6,7 +6,6 @@
 static void HK_glRenderbufferStorage(NEXT(glRenderbufferStorage) next, GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 
 void FBO::registerRenderbufferWorkaround() {
-    PROVIDE(glRenderbufferStorage);
     HOOK(glRenderbufferStorage);
 }
 

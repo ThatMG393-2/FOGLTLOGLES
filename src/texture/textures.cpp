@@ -19,18 +19,12 @@ static void HK_glTexParameterf(NEXT(glTexParameterf) next, GLenum target, GLenum
 static void HK_glTexParameteri(NEXT(glTexParameteri) next, GLenum target, GLenum pname, GLint param);
 
 void Texture::registerTextureOverrides() {
-    PROVIDE(glTexImage2D);
     HOOK(glTexImage2D);
-    PROVIDE(glTexSubImage2D);
     HOOK(glTexSubImage2D);
-    PROVIDE(glCopyTexImage2D);
     HOOK(glCopyTexImage2D);
-    PROVIDE(glCopyTexSubImage2D);
     HOOK(glCopyTexSubImage2D);
     
-    PROVIDE(glTexParameterf);
     HOOK(glTexParameterf);
-    PROVIDE(glTexParameteri);
     HOOK(glTexParameteri);
 }
 

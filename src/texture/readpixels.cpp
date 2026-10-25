@@ -5,7 +5,6 @@
 static void HK_glReadPixels(NEXT(glReadPixels) next, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
 
 void Texture::registerReadPixelsOverride() {
-    PROVIDE(glReadPixels);
     HOOK(glReadPixels);
 }
 

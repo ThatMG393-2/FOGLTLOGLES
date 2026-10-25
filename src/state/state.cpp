@@ -35,34 +35,22 @@ void State::init() {
     HOOK(glDeleteProgram);
     HOOK(glRenderbufferStorage);
 
-    PROVIDE(glBindFramebuffer);
     HOOK(glBindFramebuffer);
-    PROVIDE(glGenFramebuffers);
     HOOK(glGenFramebuffers);
-    PROVIDE(glDeleteFramebuffers); // deleting tracked framebuffers
-    HOOK(glDeleteFramebuffers);
+    HOOK(glDeleteFramebuffers); // deleting tracked framebuffers
 
-    PROVIDE(glBindTexture);
     HOOK(glBindTexture);
-    PROVIDE(glDeleteTextures); // deleting tracked iformat
-    HOOK(glDeleteTextures);
-    PROVIDE(glActiveTexture);
+    HOOK(glDeleteTextures); // deleting tracked iformat
     HOOK(glActiveTexture);
 
-    PROVIDE(glBindBuffer);
     HOOK(glBindBuffer);
-    PROVIDE(glBufferData);
     HOOK(glBufferData);
 
-    PROVIDE(glBindVertexArray);
     HOOK(glBindVertexArray);
-    PROVIDE(glDeleteVertexArrays);
     HOOK(glDeleteVertexArrays);
 
-    PROVIDE(glBindRenderbuffer);
     HOOK(glBindRenderbuffer);
-    PROVIDE(glDeleteRenderbuffers); // deleting tracked iformat
-    HOOK(glDeleteRenderbuffers);
+    HOOK(glDeleteRenderbuffers); // deleting tracked iformat
 
     trackedStates = std::make_shared<TrackedStates>();
 }

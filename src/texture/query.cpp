@@ -15,9 +15,7 @@ static void HK_glGetTexLevelParameterfv(NEXT(glGetTexLevelParameterfv) next, GLe
 void Texture::registerQueryOverrides() {
     PROVIDE(glGetTexImage);
 
-    PROVIDE(glGetTexLevelParameteriv);
     HOOK(glGetTexLevelParameteriv);
-    PROVIDE(glGetTexLevelParameterfv);
     HOOK(glGetTexLevelParameterfv);
 }
 

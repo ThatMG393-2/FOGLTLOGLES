@@ -59,6 +59,7 @@ namespace FOGLTLOGLES {
         Entry& e = entryFor(name);
 
         C::entry = &e;
+        if (!e.base) e.base = TO_FUNCPTR(Key);
         if constexpr (C::template middleware<F>) {
             C::hooks.emplace_back(std::move(f));
         } else {

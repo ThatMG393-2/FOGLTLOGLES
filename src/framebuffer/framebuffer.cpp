@@ -25,24 +25,16 @@ GLenum OV_glCheckFramebufferStatus(GLenum target);
 
 void FBO::registerFramebufferOverrides() {
     PROVIDE(glDrawBuffer);
-    PROVIDE(glDrawBuffers);
     HOOK(glDrawBuffers);
 
-    PROVIDE(glClearBufferfv);
     HOOK(glClearBufferfv);
-    PROVIDE(glClearBufferiv);
     HOOK(glClearBufferiv);
-    PROVIDE(glClearBufferuiv);
     HOOK(glClearBufferuiv);
 
-    PROVIDE(glFramebufferTexture2D);
     HOOK(glFramebufferTexture2D);
-    PROVIDE(glFramebufferTextureLayer);
     HOOK(glFramebufferTextureLayer);
-    PROVIDE(glFramebufferRenderbuffer);
     HOOK(glFramebufferRenderbuffer);
 
-    PROVIDE(glGetFramebufferAttachmentParameteriv);
     HOOK(glGetFramebufferAttachmentParameteriv);
     OVERRIDE(glCheckFramebufferStatus);
 
